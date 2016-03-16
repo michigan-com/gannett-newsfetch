@@ -14,7 +14,6 @@ import (
 		https://confluence.gannett.com/pages/viewpage.action?title=Search+v4+Recipes&spaceKey=GDPDW#Searchv4Recipes-FilterbyDateRange
 */
 func FormatAsDateString(year, month, day, hour, minute, second int) string {
-
 	return fmt.Sprintf("%s-%s-%sT%s:%s:%sZ",
 		GetZeroPaddedString(year),
 		GetZeroPaddedString(month),

@@ -7,12 +7,16 @@ import (
 	"github.com/michigan-com/gannett-newsfetch/config"
 )
 
-var GannettApiUrlRoot = "http://api.gannett-cdn.com/prod/Search/v4/assets/proxy"
+// Use for querying for the list of articles
+var GannettApiSearchRoot = "http://api.gannett-cdn.com/prod/Search/v4/assets/proxy"
+
+// Use for getting the article content
+var GannettApiPresentationRoot = "http://presentation-api.production.gannettdigital.com/v4/assets/"
 
 /*
 	Get default query param values
 */
-func GetDefaultValues(siteCode string) url.Values {
+func GetDefaultSearchValues(siteCode string) url.Values {
 	apiConfig, _ := config.GetApiConfig()
 
 	defaultValues := url.Values{}
