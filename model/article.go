@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -54,10 +55,10 @@ func (a *Article) Save(session *mgo.Session) {
 			"sections":    a.Sections,
 			"updated_at":  a.Updated_at,
 			"timestamp":   a.Timestamp,
+			"created_at":  a.Created_at,
 			"url":         a.Url,
 			"photo":       a.Photo,
 		},
-		"$setOnInsert": bson.M{"created_at": a.Created_at},
 	}
 
 	_, err := articleCol.Upsert(bson.M{"article_id": a.ArticleId}, update)
@@ -82,7 +83,8 @@ func ShouldSummarizeArticle(article *Article, session *mgo.Session) bool {
 	err := collection.Find(bson.M{"article_id": article.ArticleId}).One(storedArticle)
 	if err == mgo.ErrNotFound {
 		return true
-	} else if !article.Timestamp.Equal(storedArticle.Timestamp) {
+	} else if !article.Created_at.Equal(storedArticle.Created_at) {
+		log.Info(article.ArticleId, article.Created_at, storedArticle.ArticleId, storedArticle.Created_at)
 		return true
 	}
 	return false

@@ -3,6 +3,8 @@ package gannettApi
 import (
 	"time"
 
+	log "github.com/Sirupsen/logrus"
+
 	f "github.com/michigan-com/gannett-newsfetch/gannettApi/fetch"
 	"github.com/michigan-com/gannett-newsfetch/lib"
 	m "github.com/michigan-com/gannett-newsfetch/model"
@@ -26,6 +28,7 @@ func FormatArticleForSaving(inputArticle *f.ArticleIn) *m.Article {
 	mongoArticle.Url = inputArticle.Urls.LongUrl
 	mongoArticle.ShortUrl = inputArticle.Urls.ShortUrl
 	mongoArticle.Photo = getPhoto(inputArticle)
+	mongoArticle.Created_at = getDate(inputArticle.DatePublished)
 
 	return mongoArticle
 }
@@ -61,6 +64,7 @@ func getPhoto(article *f.ArticleIn) *m.Photo {
 func getDate(dateString string) time.Time {
 	date, err := time.Parse("2016-03-09T23:47:58.0000000Z", dateString)
 	if err != nil {
+		log.Info(err)
 		return time.Now()
 	}
 	return date

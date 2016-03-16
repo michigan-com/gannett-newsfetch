@@ -22,7 +22,7 @@ func TestArticleComparison(t *testing.T) {
 	defer session.Close()
 
 	inputArticle.ArticleId = defaultArticleId
-	inputArticle.Timestamp = defaultTimestamp
+	inputArticle.Created_at = defaultTimestamp
 
 	// Tests the case where theres the article doesnt yet exist
 	shouldSummarize = ShouldSummarizeArticle(inputArticle, session)
@@ -34,7 +34,7 @@ func TestArticleComparison(t *testing.T) {
 	// is the same
 	articleCol.Insert(bson.M{
 		"article_id": inputArticle.ArticleId,
-		"timestamp":  inputArticle.Timestamp,
+		"timestamp":  inputArticle.Created_at,
 	})
 	shouldSummarize = ShouldSummarizeArticle(inputArticle, session)
 	if shouldSummarize {
@@ -42,7 +42,7 @@ func TestArticleComparison(t *testing.T) {
 	}
 
 	// Make a new timestamp for this article that
-	inputArticle.Timestamp = laterTimestamp
+	inputArticle.Created_at = laterTimestamp
 	shouldSummarize = ShouldSummarizeArticle(inputArticle, session)
 	if !shouldSummarize {
 		t.Fatal("Found articles with new timestamps should be re-summarized")

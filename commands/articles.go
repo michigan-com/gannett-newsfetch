@@ -6,12 +6,14 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/michigan-com/gannett-newsfetch/config"
 	fetch "github.com/michigan-com/gannett-newsfetch/gannettApi/fetch"
 	format "github.com/michigan-com/gannett-newsfetch/gannettApi/format"
 	"github.com/michigan-com/gannett-newsfetch/lib"
 	"github.com/michigan-com/gannett-newsfetch/model"
+	parse "github.com/michigan-com/gannett-newsfetch/parse/body"
 )
 
 var articlesCmd = &cobra.Command{
@@ -31,6 +33,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 	for _, code := range apiConfig.SiteCodes {
 		articleWait.Add(1)
 		go func(code string) {
+			defer articleWait.Done()
 			articles := fetch.GetArticlesByDay(code, time.Now())
 			log.Infof("got articles for %s", code)
 			log.Info(len(articles))
@@ -40,7 +43,6 @@ func articleCmdRun(command *cobra.Command, args []string) {
 			}
 
 			log.Infof("Done adding articles")
-			articleWait.Done()
 		}(code)
 	}
 	articleWait.Wait()
@@ -64,6 +66,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 			mongoArticle.Save(session)
 
 			if shouldSummarize {
+				log.Info(mongoArticle.ArticleId)
 				summaryChannel <- mongoArticle.ArticleId
 			}
 
@@ -72,4 +75,21 @@ func articleCmdRun(command *cobra.Command, args []string) {
 	}
 	articleWait.Wait()
 	close(summaryChannel)
+
+	// Grab the body text for the articles that need summarization
+	for articleId := range summaryChannel {
+
+		articleWait.Add(1)
+		go func(articleId int) {
+			defer articleWait.Done()
+			articleCol := session.DB("").C("Article")
+			articleContent := fetch.GetArticleContent(articleId)
+			body := parse.ParseArticleBodyHtml(articleContent.FullText)
+
+			query := bson.M{"article_id": articleId}
+			update := bson.M{"$set": bson.M{"body": body}}
+			articleCol.Update(query, update)
+		}(articleId)
+	}
+	articleWait.Wait()
 }
