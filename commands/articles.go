@@ -77,8 +77,8 @@ func articleCmdRun(command *cobra.Command, args []string) {
 	close(summaryChannel)
 
 	// Grab the body text for the articles that need summarization
+	toSummarize := make([]interface{}, 0, len(summaryChannel))
 	for articleId := range summaryChannel {
-
 		articleWait.Add(1)
 		go func(articleId int) {
 			defer articleWait.Done()
@@ -89,7 +89,24 @@ func articleCmdRun(command *cobra.Command, args []string) {
 			query := bson.M{"article_id": articleId}
 			update := bson.M{"$set": bson.M{"body": body}}
 			articleCol.Update(query, update)
+
+			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
+			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
 		}(articleId)
 	}
 	articleWait.Wait()
+
+	log.Info(toSummarize...)
+
+	// Save the articles we're going to summarize, and run the summarizer
+	if len(toSummarize) > 0 {
+		bulk := session.DB("").C("ToSummarize").Bulk()
+		bulk.Upsert(toSummarize...)
+		result, err := bulk.Run()
+		if err != nil {
+			log.Info(err)
+		}
+
+		log.Info(result)
+	}
 }

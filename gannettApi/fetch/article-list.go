@@ -80,7 +80,7 @@ func getArticles(siteCode string, startDate string, endDate string) []*ArticleIn
 	var queryParams = api.GetDefaultSearchValues(siteCode)
 	queryParams.Add("fq", fmt.Sprintf("initialpublished:[%s TO %s]", startDate, endDate))
 	queryParams.Add("fq", "assettypename:text")
-	queryParams.Add("fl", "lastpublished")
+	queryParams.Add("fl", "initialpublished")
 	queryParams.Add("sort", "lastpublished desc")
 
 	url := fmt.Sprintf("%s?%s", api.GannettApiSearchRoot, queryParams.Encode())

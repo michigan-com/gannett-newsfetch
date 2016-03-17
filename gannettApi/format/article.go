@@ -4,7 +4,6 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-
 	f "github.com/michigan-com/gannett-newsfetch/gannettApi/fetch"
 	"github.com/michigan-com/gannett-newsfetch/lib"
 	m "github.com/michigan-com/gannett-newsfetch/model"
@@ -62,7 +61,9 @@ func getPhoto(article *f.ArticleIn) *m.Photo {
 	Given a string date, return the date. If anything goes wrong, return time.Now()
 */
 func getDate(dateString string) time.Time {
-	date, err := time.Parse("2016-03-09T23:47:58.0000000Z", dateString)
+	// https://golang.org/src/time/format.go
+	// Idk, a regular date string wasnt working, cause why would it
+	date, err := time.Parse(time.RFC3339Nano, dateString)
 	if err != nil {
 		log.Info(err)
 		return time.Now()

@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	//log "github.com/Sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -83,9 +83,19 @@ func ShouldSummarizeArticle(article *Article, session *mgo.Session) bool {
 	err := collection.Find(bson.M{"article_id": article.ArticleId}).One(storedArticle)
 	if err == mgo.ErrNotFound {
 		return true
-	} else if !article.Created_at.Equal(storedArticle.Created_at) {
-		log.Info(article.ArticleId, article.Created_at, storedArticle.ArticleId, storedArticle.Created_at)
+	} else if !sameDate(article.Created_at, storedArticle.Created_at) {
 		return true
 	}
 	return false
+}
+
+func sameDate(date1, date2 time.Time) bool {
+	date1 = date1.UTC()
+	date2 = date2.UTC()
+	return date1.Year() == date2.Year() &&
+		date1.Month() == date2.Month() &&
+		date1.Day() == date2.Day() &&
+		date1.Hour() == date2.Hour() &&
+		date1.Minute() == date2.Minute() &&
+		date1.Second() == date2.Second()
 }
