@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	//log "github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -63,7 +63,12 @@ func (a *Article) Save(session *mgo.Session) {
 
 	_, err := articleCol.Upsert(bson.M{"article_id": a.ArticleId}, update)
 	if err != nil {
-		panic(err)
+		log.Warningf(`
+
+		Failed to save Article %d. Upsert failed:
+
+			Err: %v
+		`, a.ArticleId, err)
 	}
 
 	return
