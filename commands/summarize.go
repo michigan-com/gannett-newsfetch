@@ -15,8 +15,10 @@ type SummaryResponse struct {
 	Summarized int `json:"summarized"`
 }
 
+/*
+	Run a python process to summarize all articles in the ToSummarize collection
+*/
 func ProcessSummaries() (*SummaryResponse, error) {
-	log.Info("Sending request to brevity to process summaries")
 	envConfig, _ := config.GetEnv()
 
 	if envConfig.SummaryVEnv == "" {
