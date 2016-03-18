@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
-
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 )
 
@@ -76,7 +74,6 @@ func GetArticlesByDay(siteCode string, date time.Time) []*ArticleIn {
 	Date strings should be formatted via gannettApi.FormatAsDateString
 */
 func getArticles(siteCode string, startDate string, endDate string) []*ArticleIn {
-	log.Info(startDate, endDate)
 	var queryParams = api.GetDefaultSearchValues(siteCode)
 	queryParams.Add("fq", fmt.Sprintf("initialpublished:[%s TO %s]", startDate, endDate))
 	queryParams.Add("fq", "assettypename:text")
@@ -84,7 +81,6 @@ func getArticles(siteCode string, startDate string, endDate string) []*ArticleIn
 	queryParams.Add("sort", "lastpublished desc")
 
 	url := fmt.Sprintf("%s?%s", api.GannettApiSearchRoot, queryParams.Encode())
-	log.Info(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)

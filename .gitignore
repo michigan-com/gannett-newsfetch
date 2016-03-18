@@ -1,3 +1,4 @@
 *.swp
 gannett-newsfetch
 env.sh
+summary_venv

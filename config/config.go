@@ -10,6 +10,7 @@ type EnvConfig struct {
 	MongoUri      string `envconfig:"mongo_uri"`
 	GannettApiKey string `envconfig:"gannett_api_key"`
 	SiteCodes     string `envconfig:"site_codes"`
+	SummaryVEnv   string `envconfig:"summary_v_env"`
 }
 
 type ApiConfig struct {

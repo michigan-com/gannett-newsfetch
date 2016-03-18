@@ -18,7 +18,7 @@ import (
 
 var articlesCmd = &cobra.Command{
 	Use:   "articles",
-	Short: "Get articles from the gannett API based on the news source",
+	Short: "Get articles published on the current day from the Gannett API",
 	Run:   articleCmdRun,
 }
 
@@ -66,7 +66,6 @@ func articleCmdRun(command *cobra.Command, args []string) {
 			mongoArticle.Save(session)
 
 			if shouldSummarize {
-				log.Info(mongoArticle.ArticleId)
 				summaryChannel <- mongoArticle.ArticleId
 			}
 
@@ -96,17 +95,15 @@ func articleCmdRun(command *cobra.Command, args []string) {
 	}
 	articleWait.Wait()
 
-	log.Info(toSummarize...)
-
 	// Save the articles we're going to summarize, and run the summarizer
 	if len(toSummarize) > 0 {
 		bulk := session.DB("").C("ToSummarize").Bulk()
 		bulk.Upsert(toSummarize...)
-		result, err := bulk.Run()
+		_, err := bulk.Run()
 		if err != nil {
 			log.Info(err)
 		}
-
-		log.Info(result)
 	}
+
+	ProcessSummaries()
 }
