@@ -37,6 +37,9 @@ def process_article_summaries(db, override=False):
         #print("Processing {} ...".format(article['article_id']))
         summary = summarize(article['headline'], article['body'])
         articleCol.update({ '_id': article['_id'] }, { '$set': { 'summary': summary } })
+
+        toSummarizeCol.remove({ 'article_id': article['article_id'] })
+
         summarized += 1
 
     return { 'summarized': summarized, 'skipped': skipped }
