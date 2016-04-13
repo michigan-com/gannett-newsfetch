@@ -29,6 +29,7 @@ func GetArticleContent(articleId int) *FullArticleIn {
 		`, articleId, err)
 		return fullArticle
 	}
+	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(fullArticle)

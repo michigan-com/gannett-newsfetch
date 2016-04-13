@@ -28,10 +28,11 @@ func ProcessSummaries() (*SummaryResponse, error) {
 	cmd := fmt.Sprintf("%s/bin/python", envConfig.SummaryVEnv)
 	pyScript := fmt.Sprintf("%s/bin/summary.py", envConfig.SummaryVEnv)
 
-	log.Info("Executing command: %s %s %s", cmd, pyScript, envConfig.MongoUri)
+	log.Infof("Executing command: %s %s %s", cmd, pyScript, envConfig.MongoUri)
 
 	out, err := exec.Command(cmd, pyScript, envConfig.MongoUri).Output()
 	if err != nil {
+		log.Errorf("\n\nError summarizing articles: %v\n\n", err)
 		return nil, err
 	}
 

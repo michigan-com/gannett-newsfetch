@@ -84,6 +84,7 @@ func getArticles(siteCode string, startDate string, endDate string) []*ArticleIn
 	queryParams.Add("sort", "lastpublished desc")
 
 	url := fmt.Sprintf("%s?%s", api.GannettApiSearchRoot, queryParams.Encode())
+	log.Println(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Warningf(`
@@ -94,6 +95,7 @@ func getArticles(siteCode string, startDate string, endDate string) []*ArticleIn
 		`, siteCode, err)
 		return articleResponse.Results
 	}
+	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(articleResponse)
