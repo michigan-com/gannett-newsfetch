@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/mgo.v2"
@@ -24,6 +25,7 @@ type Article struct {
 	ShortUrl    string        `bson:"shortUrl" json:"shortUrl"`
 	Photo       *Photo        `bson:"photo" json:"photo"`
 	Body        string        `bson:"body" json:"body"`
+	Summary 		[]string 			`bson"summary" json:"summary"`
 }
 
 type PhotoInfo struct {
@@ -74,6 +76,25 @@ func (a *Article) Save(session *mgo.Session) {
 	return
 }
 
+func isBlacklisted(url string) bool {
+	blacklist := []string{
+		"/videos/",
+		"/police-blotter/",
+		"/interactives/",
+		"facebook.com",
+		"/errors/404",
+		"http://live.",
+	}
+
+	for _, item := range blacklist {
+		if strings.Contains(url, item) {
+			return true
+		}
+	}
+
+	return false
+}
+
 /*
 	We should summarize the article under two scenarios:
 
@@ -83,12 +104,19 @@ func (a *Article) Save(session *mgo.Session) {
 	Does a lookup based on Article.ArticleId
 */
 func ShouldSummarizeArticle(article *Article, session *mgo.Session) bool {
+	// Don't summarize if it's a blacklisted article
+	if isBlacklisted(article.Url) {
+		return false
+	}
+
 	var storedArticle *Article = &Article{}
 	collection := session.DB("").C("Article")
 	err := collection.Find(bson.M{"article_id": article.ArticleId}).One(storedArticle)
 	if err == mgo.ErrNotFound {
 		return true
 	} else if !sameDate(article.Created_at, storedArticle.Created_at) {
+		return true
+	} else if len(storedArticle.Summary) == 0 {
 		return true
 	}
 	return false

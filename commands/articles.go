@@ -12,7 +12,7 @@ import (
 	fetch "github.com/michigan-com/gannett-newsfetch/gannettApi/fetch"
 	format "github.com/michigan-com/gannett-newsfetch/gannettApi/format"
 	"github.com/michigan-com/gannett-newsfetch/lib"
-	"github.com/michigan-com/gannett-newsfetch/model"
+	m "github.com/michigan-com/gannett-newsfetch/model"
 	parse "github.com/michigan-com/gannett-newsfetch/parse/body"
 )
 
@@ -30,7 +30,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 	var totalArticles int = 0
 	var summarizedArticles int = 0
 	articleChannel := make(chan *fetch.ArticleIn, len(apiConfig.SiteCodes)*100)
-	summaryChannel := make(chan int, len(apiConfig.SiteCodes)*100)
+	summaryChannel := make(chan *m.Article, len(apiConfig.SiteCodes)*100)
 
 	// Fetch each markets' articles in parallel
 	log.Info("Fetching articles for all sites ...")
@@ -65,11 +65,11 @@ func articleCmdRun(command *cobra.Command, args []string) {
 		totalArticles += 1
 		go func(article *fetch.ArticleIn) {
 			mongoArticle := format.FormatArticleForSaving(article)
-			shouldSummarize := model.ShouldSummarizeArticle(mongoArticle, session)
+			shouldSummarize := m.ShouldSummarizeArticle(mongoArticle, session)
 			mongoArticle.Save(session)
 
 			if shouldSummarize {
-				summaryChannel <- mongoArticle.ArticleId
+				summaryChannel <- mongoArticle
 			}
 
 			articleWait.Done()
@@ -81,14 +81,21 @@ func articleCmdRun(command *cobra.Command, args []string) {
 
 	// Grab the body text for the articles that need summarization
 	toSummarize := make([]interface{}, 0, len(summaryChannel))
-	for articleId := range summaryChannel {
-		summarizedArticles += 1
+	for article := range summaryChannel {
 		articleWait.Add(1)
-		go func(articleId int) {
+		go func(article *m.Article) {
 			defer articleWait.Done()
 			articleCol := session.DB("").C("Article")
-			articleContent := fetch.GetArticleContent(articleId)
+			articleId := article.ArticleId
+			articleContent := fetch.GetArticleContent(article.Url)
 			body := parse.ParseArticleBodyHtml(articleContent.FullText)
+
+			if body == "" {
+				log.Infof("No body text for article %v, summary will be skipped", articleId)
+				return
+			}
+
+			summarizedArticles += 1
 
 			query := bson.M{"article_id": articleId}
 			update := bson.M{"$set": bson.M{"body": body}}
@@ -96,7 +103,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 
 			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
 			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
-		}(articleId)
+		}(article)
 	}
 	articleWait.Wait()
 
