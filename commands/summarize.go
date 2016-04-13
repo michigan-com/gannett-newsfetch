@@ -32,7 +32,6 @@ func ProcessSummaries() (*SummaryResponse, error) {
 
 	out, err := exec.Command(cmd, pyScript, envConfig.MongoUri).Output()
 	if err != nil {
-		log.Errorf("\n\nError summarizing articles: %v\n\n", err)
 		return nil, err
 	}
 
