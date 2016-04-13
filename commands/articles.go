@@ -116,7 +116,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 		if err != nil {
 			log.Info(err)
 		}
-		_, err := ProcessSummaries()
+		_, err = ProcessSummaries()
 		if err != nil {
 			log.Errorf("\n\nError summarizing articles: %v\n\n", err)
 		}
