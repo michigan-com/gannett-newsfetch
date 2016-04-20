@@ -1,4 +1,7 @@
+.env
+# older version of .env, we don't want it committed
+env.sh
+
 *.swp
 gannett-newsfetch
-env.sh
 summary_venv
