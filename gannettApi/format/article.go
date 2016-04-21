@@ -38,21 +38,28 @@ func getPhoto(article *f.ArticleIn) *m.Photo {
 		return nil
 	}
 
-	fullPhoto := m.PhotoInfo{
+	photo.Caption = article.Photo.Caption
+	photo.Credit = article.Photo.Credit
+
+	photo.Full = m.PhotoInfo{
 		Url:    article.Photo.Crops["1_1"],
 		Width:  article.Photo.OriginalWidth,
 		Height: article.Photo.OriginalHeight,
 	}
-	thumbPhoto := m.PhotoInfo{
+	photo.Thumbnail = m.PhotoInfo{
 		Url:    article.Photo.Crops["front_thumb"],
 		Width:  article.Photo.OriginalWidth,
 		Height: article.Photo.OriginalHeight,
 	}
 
-	photo.Caption = article.Photo.Caption
-	photo.Credit = article.Photo.Credit
-	photo.Full = fullPhoto
-	photo.Thumbnail = thumbPhoto
+	photo.Crops = make(map[string]m.PhotoInfo, len(article.Photo.Crops))
+	for size, crop := range article.Photo.Crops {
+		photo.Crops[size] = m.PhotoInfo{
+			Url:    crop,
+			Width:  0,
+			Height: 0,
+		}
+	}
 
 	return photo
 }

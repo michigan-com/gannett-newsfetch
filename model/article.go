@@ -1,8 +1,8 @@
 package model
 
 import (
-	"time"
 	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/mgo.v2"
@@ -25,7 +25,7 @@ type Article struct {
 	ShortUrl    string        `bson:"shortUrl" json:"shortUrl"`
 	Photo       *Photo        `bson:"photo" json:"photo"`
 	Body        string        `bson:"body" json:"body"`
-	Summary 		[]string 			`bson"summary" json:"summary"`
+	Summary     []string      `bson"summary" json:"summary"`
 }
 
 type PhotoInfo struct {
@@ -38,7 +38,9 @@ type Photo struct {
 	Caption   string    `bson:"caption"`
 	Credit    string    `bson:"credit"`
 	Full      PhotoInfo `bson:"full"`
-	Thumbnail PhotoInfo `bson:"thumbnail"`
+	Thumbnail PhotoInfo `bson:"thumbnail"` // deprecated
+
+	Crops map[string]PhotoInfo `bson:"crops"`
 }
 
 /*
