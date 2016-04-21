@@ -3,11 +3,13 @@ package gannettApi
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
 
+	"github.com/andreyvit/debugflag"
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 )
 
@@ -97,7 +99,12 @@ func getArticles(siteCode string, startDate string, endDate string) []*ArticleIn
 	}
 	defer resp.Body.Close()
 
-	decoder := json.NewDecoder(resp.Body)
+	var body io.Reader = resp.Body
+	if debugflag.IsEnabled("json:articles") {
+		body = dumpJSONFromReader(fmt.Sprintf("Articles JSON from %s", url), "    ", resp.Body)
+	}
+
+	decoder := json.NewDecoder(body)
 	err = decoder.Decode(articleResponse)
 
 	if err != nil {

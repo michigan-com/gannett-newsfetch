@@ -30,6 +30,13 @@ Cache news articles from Gannett APIs and cache them in a Mongo store for easy s
 * `SUMMARY_V_ENV` - absolute path to the virutal environment for summarization
 
 
+## Debugging
+
+Set `DEBUG` to a comma-separated list of these flags to enable additional behaviors:
+
+* `json:articles`: dump incoming article JSONs to stdout
+
+
 ## Commands
 ### Articles
 Fetch gannett news articles for the current day and summarizes
