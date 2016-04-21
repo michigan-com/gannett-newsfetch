@@ -42,7 +42,7 @@ func getPhoto(article *f.ArticleIn) *m.Photo {
 	photo.Credit = article.Photo.Credit
 
 	photo.Full = m.PhotoInfo{
-		Url:    article.Photo.Crops["1_1"],
+		Url:    article.Photo.AbsoluteUrl,
 		Width:  article.Photo.OriginalWidth,
 		Height: article.Photo.OriginalHeight,
 	}
