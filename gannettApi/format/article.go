@@ -72,7 +72,7 @@ func getDate(dateString string) time.Time {
 	// Idk, a regular date string wasnt working, cause why would it
 	date, err := time.Parse(time.RFC3339Nano, dateString)
 	if err != nil {
-		log.Info(err)
+		log.Infof("PARSING ERROR article: %v", err)
 		return time.Now()
 	}
 	return date

@@ -80,7 +80,7 @@ func GetArticlesByDay(siteCode string, date time.Time) []*ArticleIn {
 func getArticles(siteCode string, startDate string, endDate string) []*ArticleIn {
 	var articleResponse *ArticlesResponse = &ArticlesResponse{}
 	var queryParams = api.GetDefaultSearchValues(siteCode)
-	queryParams.Add("fq", fmt.Sprintf("initialpublished:[%s TO %s]", startDate, endDate))
+	queryParams.Add("fq", fmt.Sprintf("lastpublished:[%s TO %s]", startDate, endDate))
 	queryParams.Add("fq", "assettypename:text")
 	queryParams.Add("fl", "initialpublished")
 	queryParams.Add("sort", "lastpublished desc")
