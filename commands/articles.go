@@ -89,6 +89,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 			articleId := article.ArticleId
 			articleContent := fetch.GetArticleContent(article.Url)
 			body := parse.ParseArticleBodyHtml(articleContent.FullText)
+			storyHighlights := articleContent.StoryHighlights
 
 			if body == "" {
 				log.Infof("No body text for article %v, summary will be skipped", articleId)
@@ -98,7 +99,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 			summarizedArticles += 1
 
 			query := bson.M{"article_id": articleId}
-			update := bson.M{"$set": bson.M{"body": body}}
+			update := bson.M{"$set": bson.M{"body": body, "storyHighlights": storyHighlights}}
 			articleCol.Update(query, update)
 
 			toSummarize = append(toSummarize, bson.M{"article_id": articleId})

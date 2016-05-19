@@ -26,6 +26,7 @@ type Article struct {
 	Photo       *Photo        `bson:"photo" json:"photo"`
 	Body        string        `bson:"body" json:"body"`
 	Summary     []string      `bson"summary" json:"summary"`
+	StoryHighlights []string `bson"storyHighlights" json:"storyHighlights"`
 }
 
 type PhotoInfo struct {

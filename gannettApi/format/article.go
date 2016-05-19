@@ -75,7 +75,7 @@ func getDate(dateString string) time.Time {
 		log.Infof("PARSING ERROR article: %v", err)
 		return time.Now()
 	}
-	return date
+	return date.UTC()
 }
 
 func getAllSections(article *f.ArticleIn) []string {

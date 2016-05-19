@@ -29,6 +29,7 @@ type ArticleIn struct {
 	PromoBrief    string      `json:"promoBrief"`
 	Attribution   attribution `json:"attribution"`
 	Photo         PhotoInfo   `json:"photo"`
+	StoryHighlights []string `json:"storyHighlights"`
 }
 
 type ssts struct {

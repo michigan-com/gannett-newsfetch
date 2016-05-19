@@ -14,6 +14,7 @@ import (
 
 type FullArticleIn struct {
 	FullText string `json:"fullText"`
+	StoryHighlights []string `json:"storyHighlights"`
 }
 
 func getArticleId(url string) int {
@@ -39,6 +40,7 @@ func GetArticleContent(articleUrl string) *FullArticleIn {
 	articleId := getArticleId(articleUrl)
 
 	url := fmt.Sprintf("%s/%d?consumer=newsfetch&transform=full", api.GannettApiPresentationRoot, articleId)
+	log.Info(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Warningf(`
