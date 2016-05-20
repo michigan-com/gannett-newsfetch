@@ -64,7 +64,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 		articleWait.Add(1)
 		totalArticles += 1
 		go func(article *fetch.ArticleIn) {
-			mongoArticle := format.FormatArticleForSaving(article)
+			mongoArticle := format.FormatSearchArticleForSaving(article)
 			shouldSummarize := m.ShouldSummarizeArticle(mongoArticle, session)
 			mongoArticle.Save(session)
 
@@ -87,7 +87,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 			defer articleWait.Done()
 			articleCol := session.DB("").C("Article")
 			articleId := article.ArticleId
-			articleContent := fetch.GetArticleContent(article.Url)
+			articleContent := fetch.GetArticleBody(article.Url)
 			body := parse.ParseArticleBodyHtml(articleContent.FullText)
 			storyHighlights := articleContent.StoryHighlights
 
@@ -105,6 +105,31 @@ func articleCmdRun(command *cobra.Command, args []string) {
 			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
 			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
 		}(article)
+	}
+	articleWait.Wait()
+
+	// Now, look for articles that show up in chartbeat but not in the search/v4 api
+	toScrape := session.DB("").C("ToScrape")
+	articleIdsToScrape := make([]map[string]int, 0, 100)
+	err := toScrape.Find(bson.M{}).Select(bson.M{"article_id": true, "_id": false}).All(&articleIdsToScrape)
+	if err != nil {
+		log.Error(err)
+	}
+
+	for _, articleIdObj := range articleIdsToScrape {
+		articleWait.Add(1)
+		articleId := articleIdObj["article_id"]
+		go func(articleId int) {
+			defer articleWait.Done()
+			log.Infof("ToScrape: %d", articleId)
+			assetArticle, assetPhoto := fetch.GetAssetArticleAndPhoto(articleId)
+			mongoArticle := format.FormatAssetArticleForSaving(assetArticle, assetPhoto)
+			mongoArticle.Body = parse.ParseArticleBodyHtml(mongoArticle.Body)
+			mongoArticle.Save(session)
+
+			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
+			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
+		}(articleId)
 	}
 	articleWait.Wait()
 

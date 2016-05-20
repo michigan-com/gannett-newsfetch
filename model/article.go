@@ -10,23 +10,23 @@ import (
 )
 
 type Article struct {
-	Id          bson.ObjectId `bson:"_id,omitempty" json:"_id"`
-	ArticleId   int           `bson:"article_id" json:"article_id"`
-	Headline    string        `bson:"headline" json:"headline`
-	Subheadline string        `bson:"subheadline" json:"subheadline"`
-	Section     string        `bson:"section" json:"section"`
-	Subsection  string        `bson:"subsection" json:"subsection"`
-	Sections    []string      `bson:"sections" json"sections"`
-	Source      string        `bson:"source" json:"source"`
-	Created_at  time.Time     `bson:"created_at" json:"created_at"`
-	Updated_at  time.Time     `bson:"updated_at" json:"updated_at"`
-	Timestamp   time.Time     `bson:"timestamp" json:"timestamp"`
-	Url         string        `bson:"url" json:"url"`
-	ShortUrl    string        `bson:"shortUrl" json:"shortUrl"`
-	Photo       *Photo        `bson:"photo" json:"photo"`
-	Body        string        `bson:"body" json:"body"`
-	Summary     []string      `bson"summary" json:"summary"`
-	StoryHighlights []string `bson"storyHighlights" json:"storyHighlights"`
+	Id              bson.ObjectId `bson:"_id,omitempty" json:"_id"`
+	ArticleId       int           `bson:"article_id" json:"article_id"`
+	Headline        string        `bson:"headline" json:"headline`
+	Subheadline     string        `bson:"subheadline" json:"subheadline"`
+	Section         string        `bson:"section" json:"section"`
+	Subsection      string        `bson:"subsection" json:"subsection"`
+	Sections        []string      `bson:"sections" json"sections"`
+	Source          string        `bson:"source" json:"source"`
+	Created_at      time.Time     `bson:"created_at" json:"created_at"`
+	Updated_at      time.Time     `bson:"updated_at" json:"updated_at"`
+	Timestamp       time.Time     `bson:"timestamp" json:"timestamp"`
+	Url             string        `bson:"url" json:"url"`
+	ShortUrl        string        `bson:"shortUrl" json:"shortUrl"`
+	Photo           *Photo        `bson:"photo" json:"photo"`
+	Body            string        `bson:"body" json:"body"`
+	Summary         []string      `bson"summary" json:"summary"`
+	StoryHighlights []string      `bson"storyHighlights" json:"storyHighlights"`
 }
 
 type PhotoInfo struct {
@@ -52,17 +52,19 @@ func (a *Article) Save(session *mgo.Session) {
 
 	update := bson.M{
 		"$set": bson.M{
-			"headline":    a.Headline,
-			"subheadline": a.Subheadline,
-			"section":     a.Section,
-			"subsection":  a.Subsection,
-			"source":      a.Source,
-			"sections":    a.Sections,
-			"updated_at":  a.Updated_at,
-			"timestamp":   a.Timestamp,
-			"created_at":  a.Created_at,
-			"url":         a.Url,
-			"photo":       a.Photo,
+			"headline":        a.Headline,
+			"subheadline":     a.Subheadline,
+			"section":         a.Section,
+			"subsection":      a.Subsection,
+			"source":          a.Source,
+			"sections":        a.Sections,
+			"updated_at":      a.Updated_at,
+			"timestamp":       a.Timestamp,
+			"created_at":      a.Created_at,
+			"url":             a.Url,
+			"photo":           a.Photo,
+			"body":            a.Body,
+			"storyHighlights": a.StoryHighlights,
 		},
 	}
 

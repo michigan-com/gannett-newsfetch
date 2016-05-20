@@ -13,7 +13,7 @@ import (
 	Given an article from the Gannett API (`inputArticle`), return an article that
 	will be saved in mongo
 */
-func FormatArticleForSaving(inputArticle *f.ArticleIn) *m.Article {
+func FormatSearchArticleForSaving(inputArticle *f.ArticleIn) *m.Article {
 	var mongoArticle *m.Article = &m.Article{}
 
 	mongoArticle.ArticleId = inputArticle.AssetId
@@ -21,39 +21,60 @@ func FormatArticleForSaving(inputArticle *f.ArticleIn) *m.Article {
 	mongoArticle.Subheadline = inputArticle.PromoBrief
 	mongoArticle.Section = inputArticle.Ssts.Section
 	mongoArticle.Subsection = inputArticle.Ssts.SubSection
-	mongoArticle.Sections = getAllSections(inputArticle)
+	mongoArticle.Sections = getAllSections(&inputArticle.Ssts)
 	mongoArticle.Source, _ = lib.GetHost(inputArticle.Urls.LongUrl)
 	mongoArticle.Timestamp = getDate(inputArticle.SolrFields.InitalPublished)
 	mongoArticle.Url = inputArticle.Urls.LongUrl
 	mongoArticle.ShortUrl = inputArticle.Urls.ShortUrl
-	mongoArticle.Photo = getPhoto(inputArticle)
+	mongoArticle.Photo = getPhoto(&inputArticle.Photo)
 	mongoArticle.Created_at = getDate(inputArticle.DatePublished)
 
 	return mongoArticle
 }
 
-func getPhoto(article *f.ArticleIn) *m.Photo {
+func FormatAssetArticleForSaving(inputArticle *f.AssetArticleIn, inputPhoto *f.PhotoInfo) *m.Article {
+	var mongoArticle *m.Article = &m.Article{}
+
+	mongoArticle.ArticleId = inputArticle.AssetId
+	mongoArticle.Headline = inputArticle.Headline
+	mongoArticle.Subheadline = inputArticle.PromoBrief
+	mongoArticle.Section = inputArticle.Ssts.Section
+	mongoArticle.Subsection = inputArticle.Ssts.SubSection
+	mongoArticle.Sections = getAllSections(&inputArticle.Ssts)
+	mongoArticle.Source, _ = lib.GetHost(inputArticle.Links.LongUrl.Href)
+	mongoArticle.Timestamp = getDate(inputArticle.InitialPublishDate)
+	mongoArticle.Url = inputArticle.Links.LongUrl.Href
+	mongoArticle.ShortUrl = inputArticle.Links.ShortUrl.Href
+	mongoArticle.Photo = getPhoto(inputPhoto)
+	mongoArticle.Created_at = getDate(inputArticle.PublishDate)
+	mongoArticle.Body = inputArticle.FullText
+	mongoArticle.StoryHighlights = inputArticle.StoryHighlights
+
+	return mongoArticle
+}
+
+func getPhoto(inputPhoto *f.PhotoInfo) *m.Photo {
 	var photo *m.Photo = &m.Photo{}
-	if article.Photo.AbsoluteUrl == "" {
+	if inputPhoto == nil || inputPhoto.AbsoluteUrl == "" {
 		return nil
 	}
 
-	photo.Caption = article.Photo.Caption
-	photo.Credit = article.Photo.Credit
+	photo.Caption = inputPhoto.Caption
+	photo.Credit = inputPhoto.Credit
 
 	photo.Full = m.PhotoInfo{
-		Url:    article.Photo.AbsoluteUrl,
-		Width:  article.Photo.OriginalWidth,
-		Height: article.Photo.OriginalHeight,
+		Url:    inputPhoto.AbsoluteUrl,
+		Width:  inputPhoto.OriginalWidth,
+		Height: inputPhoto.OriginalHeight,
 	}
 	photo.Thumbnail = m.PhotoInfo{
-		Url:    article.Photo.Crops["front_thumb"],
-		Width:  article.Photo.OriginalWidth,
-		Height: article.Photo.OriginalHeight,
+		Url:    inputPhoto.Crops["front_thumb"],
+		Width:  inputPhoto.OriginalWidth,
+		Height: inputPhoto.OriginalHeight,
 	}
 
-	photo.Crops = make(map[string]m.PhotoInfo, len(article.Photo.Crops))
-	for size, crop := range article.Photo.Crops {
+	photo.Crops = make(map[string]m.PhotoInfo, len(inputPhoto.Crops))
+	for size, crop := range inputPhoto.Crops {
 		photo.Crops[size] = m.PhotoInfo{
 			Url:    crop,
 			Width:  0,
@@ -78,17 +99,17 @@ func getDate(dateString string) time.Time {
 	return date.UTC()
 }
 
-func getAllSections(article *f.ArticleIn) []string {
+func getAllSections(ssts *f.Ssts) []string {
 	sections := make([]string, 0, 3)
-	sections = append(sections, article.Ssts.Section)
-	if article.Ssts.SubSection != "" {
-		sections = append(sections, article.Ssts.SubSection)
+	sections = append(sections, ssts.Section)
+	if ssts.SubSection != "" {
+		sections = append(sections, ssts.SubSection)
 	}
-	if article.Ssts.Topic != "" {
-		sections = append(sections, article.Ssts.Topic)
+	if ssts.Topic != "" {
+		sections = append(sections, ssts.Topic)
 	}
-	if article.Ssts.SubTopic != "" {
-		sections = append(sections, article.Ssts.SubTopic)
+	if ssts.SubTopic != "" {
+		sections = append(sections, ssts.SubTopic)
 	}
 
 	return sections
