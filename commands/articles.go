@@ -59,7 +59,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 
 	// Iterate over all the articles, and determine whether or not we need to
 	// summarize the articles
-	log.Info("Scraping articles, if necessary...")
+	log.Info("Saving articles, determining summary necessity...")
 	for article := range articleChannel {
 		articleWait.Add(1)
 		totalArticles += 1
@@ -80,6 +80,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 	log.Info("...Done scraping articles")
 
 	// Grab the body text for the articles that need summarization
+	log.Info("Grabbing article bodies from new/updated articles...")
 	toSummarize := make([]interface{}, 0, len(summaryChannel))
 	for article := range summaryChannel {
 		articleWait.Add(1)
@@ -102,51 +103,22 @@ func articleCmdRun(command *cobra.Command, args []string) {
 			update := bson.M{"$set": bson.M{"body": body, "storyHighlights": storyHighlights}}
 			articleCol.Update(query, update)
 
-			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
-			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
+			toSummarize = append(toSummarize, query)
+			toSummarize = append(toSummarize, query)
 		}(article)
 	}
 	articleWait.Wait()
+	log.Info("...Done grabbing article bodies")
 
 	// Now, look for articles that show up in chartbeat but not in the search/v4 api
-	toScrape := session.DB("").C("ToScrape")
-	articleIdsToScrape := make([]map[string]int, 0, 100)
-	err := toScrape.Find(bson.M{}).Select(bson.M{"article_id": true, "_id": false}).All(&articleIdsToScrape)
-	if err != nil {
-		log.Error(err)
-	}
-
-	for _, articleIdObj := range articleIdsToScrape {
-		articleWait.Add(1)
-		articleId := articleIdObj["article_id"]
-		go func(articleId int) {
-			defer articleWait.Done()
-			log.Infof("ToScrape: %d", articleId)
-			assetArticle, assetPhoto := fetch.GetAssetArticleAndPhoto(articleId)
-			mongoArticle := format.FormatAssetArticleForSaving(assetArticle, assetPhoto)
-			mongoArticle.Body = parse.ParseArticleBodyHtml(mongoArticle.Body)
-			mongoArticle.Save(session)
-
-			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
-			toSummarize = append(toSummarize, bson.M{"article_id": articleId})
-		}(articleId)
-	}
-	articleWait.Wait()
 
 	// Save the articles we're going to summarize, and run the summarizer
 	if len(toSummarize) > 0 {
 		log.Info("Summarizing articles...")
-		bulk := session.DB("").C("ToSummarize").Bulk()
-		bulk.Upsert(toSummarize...)
-		_, err := bulk.Run()
+		_, err := ProcessSummaries(toSummarize, session)
 		if err != nil {
-			log.Info(err)
+			log.Errorf("Failed to process summaries: %v", err)
 		}
-		_, err = ProcessSummaries()
-		if err != nil {
-			log.Errorf("\n\nError summarizing articles: %v\n\n", err)
-		}
-
 		log.Info("...Done summarizing articles")
 	} else {
 		log.Info("Hey look at that, no new articles to summarize")

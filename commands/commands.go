@@ -13,6 +13,7 @@ import (
 var (
 	VERSION    string
 	COMMITHASH string
+	loop       int
 )
 
 var NewsfetchCommand = &cobra.Command{
@@ -23,6 +24,7 @@ func Run(version, commit string) {
 	VERSION = version
 	COMMITHASH = commit
 	AddCommands()
+	AddFlags()
 	PrepareEnvironment()
 	NewsfetchCommand.Execute()
 }
@@ -32,6 +34,14 @@ func Run(version, commit string) {
 */
 func AddCommands() {
 	NewsfetchCommand.AddCommand(articlesCmd)
+	NewsfetchCommand.AddCommand(cleanupCommand)
+}
+
+/*
+	Add all necessary flags
+*/
+func AddFlags() {
+	NewsfetchCommand.PersistentFlags().IntVarP(&loop, "loop", "l", -1, "Time in seconds to sleep before looping and hitting the apis again")
 }
 
 /*

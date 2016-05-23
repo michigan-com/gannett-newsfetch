@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os/exec"
 
+	"gopkg.in/mgo.v2"
+
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/michigan-com/gannett-newsfetch/config"
@@ -18,7 +20,16 @@ type SummaryResponse struct {
 /*
 	Run a python process to summarize all articles in the ToSummarize collection
 */
-func ProcessSummaries() (*SummaryResponse, error) {
+func ProcessSummaries(toSummarize []interface{}, session *mgo.Session) (*SummaryResponse, error) {
+	summResp := &SummaryResponse{}
+
+	bulk := session.DB("").C("ToSummarize").Bulk()
+	bulk.Upsert(toSummarize...)
+	_, err := bulk.Run()
+	if err != nil {
+		return summResp, err
+	}
+
 	envConfig, _ := config.GetEnv()
 
 	if envConfig.SummaryVEnv == "" {
@@ -35,7 +46,6 @@ func ProcessSummaries() (*SummaryResponse, error) {
 		return nil, err
 	}
 
-	summResp := &SummaryResponse{}
 	if err := json.Unmarshal(out, summResp); err != nil {
 		return nil, err
 	}
