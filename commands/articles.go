@@ -4,16 +4,16 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/spf13/cobra"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
+	log "github.com/Sirupsen/logrus"
+	"github.com/spf13/cobra"
+
 	"github.com/michigan-com/gannett-newsfetch/config"
-	fetch "github.com/michigan-com/gannett-newsfetch/gannettApi/fetch"
-	format "github.com/michigan-com/gannett-newsfetch/gannettApi/format"
+	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 	"github.com/michigan-com/gannett-newsfetch/lib"
 	m "github.com/michigan-com/gannett-newsfetch/model"
-	parse "github.com/michigan-com/gannett-newsfetch/parse/body"
 )
 
 var articlesCmd = &cobra.Command{
@@ -28,9 +28,8 @@ func articleCmdRun(command *cobra.Command, args []string) {
 	var apiConfig, _ = config.GetApiConfig()
 	var articleWait sync.WaitGroup
 	var totalArticles int = 0
-	var summarizedArticles int = 0
-	articleChannel := make(chan *fetch.ArticleIn, len(apiConfig.SiteCodes)*100)
-	summaryChannel := make(chan *m.Article, len(apiConfig.SiteCodes)*100)
+	articleChannel := make(chan *api.SearchArticle, len(apiConfig.SiteCodes)*100)
+	articlesToScrape := make([]interface{}, 0, len(apiConfig.SiteCodes)*100)
 
 	// Fetch each markets' articles in parallel
 	log.Info("Fetching articles for all sites ...")
@@ -38,7 +37,7 @@ func articleCmdRun(command *cobra.Command, args []string) {
 		articleWait.Add(1)
 		go func(code string) {
 			defer articleWait.Done()
-			articles := fetch.GetArticlesByDay(code, time.Now())
+			articles := api.GetArticlesByDay(code, time.Now())
 
 			for _, article := range articles {
 				articleChannel <- article
@@ -59,76 +58,59 @@ func articleCmdRun(command *cobra.Command, args []string) {
 
 	// Iterate over all the articles, and determine whether or not we need to
 	// summarize the articles
-	log.Info("Saving articles, determining summary necessity...")
+	log.Info("Determining which articles need to be scraped...")
 	for article := range articleChannel {
-		articleWait.Add(1)
-		totalArticles += 1
-		go func(article *fetch.ArticleIn) {
-			mongoArticle := format.FormatSearchArticleForSaving(article)
-			shouldSummarize := m.ShouldSummarizeArticle(mongoArticle, session)
-			mongoArticle.Save(session)
 
-			if shouldSummarize {
-				summaryChannel <- mongoArticle
-			}
+		if shouldSummarizeArticle(article, session) {
+			totalArticles += 1
 
-			articleWait.Done()
-		}(article)
-	}
-	articleWait.Wait()
-	close(summaryChannel)
-	log.Info("...Done scraping articles")
-
-	// Grab the body text for the articles that need summarization
-	log.Info("Grabbing article bodies from new/updated articles...")
-	toSummarize := make([]interface{}, 0, len(summaryChannel))
-	for article := range summaryChannel {
-		articleWait.Add(1)
-		go func(article *m.Article) {
-			defer articleWait.Done()
-			articleCol := session.DB("").C("Article")
-			articleId := article.ArticleId
-			articleContent := fetch.GetArticleBody(article.Url)
-			body := parse.ParseArticleBodyHtml(articleContent.FullText)
-			storyHighlights := articleContent.StoryHighlights
-
-			if body == "" {
-				log.Infof("No body text for article %v, summary will be skipped", articleId)
-				return
-			}
-
-			summarizedArticles += 1
-
-			query := bson.M{"article_id": articleId}
-			update := bson.M{"$set": bson.M{"body": body, "storyHighlights": storyHighlights}}
-			articleCol.Update(query, update)
-
-			toSummarize = append(toSummarize, query)
-			toSummarize = append(toSummarize, query)
-		}(article)
-	}
-	articleWait.Wait()
-	log.Info("...Done grabbing article bodies")
-
-	// Now, look for articles that show up in chartbeat but not in the search/v4 api
-
-	// Save the articles we're going to summarize, and run the summarizer
-	if len(toSummarize) > 0 {
-		log.Info("Summarizing articles...")
-		_, err := ProcessSummaries(toSummarize, session)
-		if err != nil {
-			log.Errorf("Failed to process summaries: %v", err)
+			articleIdQuery := bson.M{"article_id": article.AssetId}
+			articlesToScrape = append(articlesToScrape, articleIdQuery)
+			articlesToScrape = append(articlesToScrape, articleIdQuery)
 		}
-		log.Info("...Done summarizing articles")
-	} else {
-		log.Info("Hey look at that, no new articles to summarize")
 	}
+
+	bulk := session.DB("").C("ToScrape").Bulk()
+	bulk.Upsert(articlesToScrape...)
+	_, err := bulk.Run()
+	if err != nil {
+		log.Errorf("Failed to store articles to be scraped: %v", err)
+	}
+	log.Info("...Done")
 
 	log.Infof(`
 
 	Article processing done (%v)
 
-		Total Articles Processed:	%d
-		Total Articles Summarized:	%d
-	`, time.Now().Sub(startTime), totalArticles, summarizedArticles)
+		Total Articles Found:	%d
+	`, time.Now().Sub(startTime), totalArticles)
+}
+
+/*
+	We should summarize the article under two scenarios:
+
+		1) This article does not yet exist in the database
+		2) This article exists in the database, but the timestamp has been updated
+
+	Does a lookup based on Article.ArticleId
+*/
+func shouldSummarizeArticle(article *api.SearchArticle, session *mgo.Session) bool {
+	// Don't summarize if it's a blacklisted article
+	if m.IsBlacklisted(article.Urls.LongUrl) {
+		return false
+	}
+
+	var storedArticle *m.Article = &m.Article{}
+	collection := session.DB("").C("Article")
+	err := collection.Find(bson.M{"article_id": article.AssetId}).One(storedArticle)
+	datePublished := lib.GannettDateStringToDate(article.DatePublished)
+	if err == mgo.ErrNotFound {
+		return true
+	} else if !lib.SameDate(datePublished, storedArticle.Created_at) {
+		return true
+	} else if len(storedArticle.Summary) == 0 {
+		return true
+	}
+	return false
+
 }

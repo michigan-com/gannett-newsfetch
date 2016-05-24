@@ -40,6 +40,7 @@ type Photo struct {
 	Credit    string    `bson:"credit"`
 	Full      PhotoInfo `bson:"full"`
 	Thumbnail PhotoInfo `bson:"thumbnail"` // deprecated
+	Small     PhotoInfo `bson:"small"`
 
 	Crops map[string]PhotoInfo `bson:"crops"`
 }
@@ -81,7 +82,7 @@ func (a *Article) Save(session *mgo.Session) {
 	return
 }
 
-func isBlacklisted(url string) bool {
+func IsBlacklisted(url string) bool {
 	blacklist := []string{
 		"/videos/",
 		"/police-blotter/",
@@ -98,42 +99,4 @@ func isBlacklisted(url string) bool {
 	}
 
 	return false
-}
-
-/*
-	We should summarize the article under two scenarios:
-
-		1) This article does not yet exist in the database
-		2) This article exists in the database, but the timestamp has been updated
-
-	Does a lookup based on Article.ArticleId
-*/
-func ShouldSummarizeArticle(article *Article, session *mgo.Session) bool {
-	// Don't summarize if it's a blacklisted article
-	if isBlacklisted(article.Url) {
-		return false
-	}
-
-	var storedArticle *Article = &Article{}
-	collection := session.DB("").C("Article")
-	err := collection.Find(bson.M{"article_id": article.ArticleId}).One(storedArticle)
-	if err == mgo.ErrNotFound {
-		return true
-	} else if !sameDate(article.Created_at, storedArticle.Created_at) {
-		return true
-	} else if len(storedArticle.Summary) == 0 {
-		return true
-	}
-	return false
-}
-
-func sameDate(date1, date2 time.Time) bool {
-	date1 = date1.UTC()
-	date2 = date2.UTC()
-	return date1.Year() == date2.Year() &&
-		date1.Month() == date2.Month() &&
-		date1.Day() == date2.Day() &&
-		date1.Hour() == date2.Hour() &&
-		date1.Minute() == date2.Minute() &&
-		date1.Second() == date2.Second()
 }

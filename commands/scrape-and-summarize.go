@@ -8,20 +8,18 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/michigan-com/chartbeat-api/config"
-	fetch "github.com/michigan-com/gannett-newsfetch/gannettApi/fetch"
-	format "github.com/michigan-com/gannett-newsfetch/gannettApi/format"
+	"github.com/michigan-com/gannett-newsfetch/config"
+	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 	"github.com/michigan-com/gannett-newsfetch/lib"
-	"github.com/michigan-com/gannett-newsfetch/parse/body"
 )
 
 var cleanupCommand = &cobra.Command{
-	Use:   "chartbeat-cleanup",
+	Use:   "scrape-and-summarize",
 	Short: "Grab stories that we see in chartbeat but not the Gannett API",
-	Run:   chartbeatCleanup,
+	Run:   scrapeAndSummarize,
 }
 
-func chartbeatCleanup(command *cobra.Command, args []string) {
+func scrapeAndSummarize(command *cobra.Command, args []string) {
 	var envConfig, _ = config.GetEnv()
 	var articleWait sync.WaitGroup
 	if envConfig.MongoUri == "" {
@@ -35,7 +33,6 @@ func chartbeatCleanup(command *cobra.Command, args []string) {
 
 	for {
 		toSummarize := make([]interface{}, 0, 100)
-		// removeFromToSrape := make([]bson.M, 0, 100)
 		articleIdsToScrape := make([]map[string]int, 0, 100)
 
 		log.Info("Finding articles in need of scraping...")
@@ -51,9 +48,9 @@ func chartbeatCleanup(command *cobra.Command, args []string) {
 				articleId := articleIdObj["article_id"]
 				go func(articleId int) {
 					defer articleWait.Done()
-					assetArticle, assetPhoto := fetch.GetAssetArticleAndPhoto(articleId)
-					mongoArticle := format.FormatAssetArticleForSaving(assetArticle, assetPhoto)
-					mongoArticle.Body = parse.ParseArticleBodyHtml(mongoArticle.Body)
+					assetArticle, assetPhoto := api.GetAssetArticleAndPhoto(articleId)
+
+					mongoArticle := api.FormatAssetArticleForSaving(assetArticle, assetPhoto)
 					mongoArticle.Save(session)
 
 					articleIdQuery := bson.M{"article_id": articleId}
@@ -79,15 +76,6 @@ func chartbeatCleanup(command *cobra.Command, args []string) {
 		} else {
 			log.Info("No articles to summarize.")
 		}
-
-		// log.Info("Removing article IDs that have been scraped...")
-		// bulk := toScrape.Bulk()
-		// bulk.Remove(removeFromToSrape)
-		// _, err = bulk.Run()
-		// if err != nil {
-		// 	log.Errorf("Error removing article IDs from ToScrape collection: %v", err)
-		// }
-		// log.Info("...Done removing article IDs")
 
 		if loop > 0 {
 			log.Infof("Sleeping for %d seconds...", loop)
