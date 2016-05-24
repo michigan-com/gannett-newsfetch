@@ -82,20 +82,20 @@ type PhotoInfo struct {
 }
 
 type AssetPhotoInfo struct {
-	AbsoluteUrl    string           `json:"absoluteUrl"`
-	PublishUrl     string           `json:"publishUrl"`
-	Crops          []Crop           `json:"crops"`
-	Caption        string           `json:"caption"`
-	Credit         string           `json:"credit"`
-	OriginalWidth  string           `json:"originalWidth"`
-	OriginalHeight string           `json:"originalHeight"`
-	Attributes     *PhotoAttributes `json"_attributes"`
+	AbsoluteUrl    string          `json:"absoluteUrl"`
+	PublishUrl     string          `json:"publishUrl"`
+	Crops          []Crop          `json:"crops"`
+	Caption        string          `json:"caption"`
+	Credit         string          `json:"credit"`
+	OriginalWidth  string          `json:"originalWidth"`
+	OriginalHeight string          `json:"originalHeight"`
+	Attributes     PhotoAttributes `json:"_attributes"`
 }
 
 type PhotoAttributes struct {
 	SmallBaseName string `json:"smallbasename"`
-	SiImageHeight string `json:"siimageheight"`
-	SiImageWidth  string `json:"siimagewidth"`
+	SImageHeight  string `json:"simageheight"`
+	SImageWidth   string `json:"simagewidth"`
 }
 
 type Crop struct {

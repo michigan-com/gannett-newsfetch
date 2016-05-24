@@ -89,6 +89,7 @@ func GetAssetPhoto(photoAssetId int) *PhotoInfo {
 
 	url := getAssetUrl(photoAssetId)
 	photoResp, err := http.Get(url)
+	fmt.Println(url)
 	if err != nil {
 		log.Warningf(`
 
@@ -129,9 +130,10 @@ func GetAssetPhoto(photoAssetId int) *PhotoInfo {
 		}
 	}
 
+	fmt.Printf("%v", assetPhotoInfo.Attributes)
 	smallUrl := fmt.Sprintf("%s%s", assetPhotoInfo.PublishUrl, assetPhotoInfo.Attributes.SmallBaseName)
-	smallWidth, _ := strconv.Atoi(assetPhotoInfo.Attributes.SiImageWidth)
-	smallHeight, _ := strconv.Atoi(assetPhotoInfo.Attributes.SiImageHeight)
+	smallWidth, _ := strconv.Atoi(assetPhotoInfo.Attributes.SImageWidth)
+	smallHeight, _ := strconv.Atoi(assetPhotoInfo.Attributes.SImageHeight)
 	crops["small"] = m.PhotoInfo{
 		Url:    smallUrl,
 		Width:  smallWidth,
