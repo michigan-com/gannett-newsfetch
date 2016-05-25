@@ -7,7 +7,7 @@ type ArticleIdTestCase struct {
 	Id  int
 }
 
-func ArticleIdTest(t *testing.T) {
+func TestArticleId(t *testing.T) {
 	testCases := []ArticleIdTestCase{
 		ArticleIdTestCase{
 			"http://www.freep.com/story/news/local/michigan/detroit/2016/05/23/hillary-clinton-calls-trump-disaster-waiting-happen/84788222/",

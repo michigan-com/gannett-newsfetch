@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"os/exec"
 
-	"gopkg.in/mgo.v2"
-
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/michigan-com/gannett-newsfetch/config"
+	"github.com/michigan-com/gannett-newsfetch/lib"
 )
 
 type SummaryResponse struct {
@@ -20,9 +19,10 @@ type SummaryResponse struct {
 /*
 	Run a python process to summarize all articles in the ToSummarize collection
 */
-func ProcessSummaries(toSummarize []interface{}, session *mgo.Session) (*SummaryResponse, error) {
+func ProcessSummaries(toSummarize []interface{}, mongoUri string) (*SummaryResponse, error) {
 	summResp := &SummaryResponse{}
 
+	session := lib.DBConnect(mongoUri)
 	bulk := session.DB("").C("ToSummarize").Bulk()
 	bulk.Upsert(toSummarize...)
 	_, err := bulk.Run()
@@ -39,9 +39,9 @@ func ProcessSummaries(toSummarize []interface{}, session *mgo.Session) (*Summary
 	cmd := fmt.Sprintf("%s/bin/python", envConfig.SummaryVEnv)
 	pyScript := fmt.Sprintf("%s/bin/summary.py", envConfig.SummaryVEnv)
 
-	log.Infof("Executing command: %s %s %s", cmd, pyScript, envConfig.MongoUri)
+	log.Infof("Executing command: %s %s %s", cmd, pyScript, mongoUri)
 
-	out, err := exec.Command(cmd, pyScript, envConfig.MongoUri).Output()
+	out, err := exec.Command(cmd, pyScript, mongoUri).Output()
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +49,7 @@ func ProcessSummaries(toSummarize []interface{}, session *mgo.Session) (*Summary
 	if err := json.Unmarshal(out, summResp); err != nil {
 		return nil, err
 	}
+	fmt.Println(summResp)
 
 	return summResp, nil
 }

@@ -49,6 +49,7 @@ if __name__ == '__main__':
         raise ArgumentError("Requires mongodb uri, eg: python summarize.py mongodb://localhost:27017/mapi")
 
     uri = sys.argv[1]
+    print '{}'.format(sys.argv[1])
 
     override = False
     if len(sys.argv) > 2:
@@ -64,4 +65,3 @@ if __name__ == '__main__':
     disconnect(client)
 
     print(json.dumps(results))
-

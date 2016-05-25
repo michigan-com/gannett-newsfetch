@@ -38,7 +38,6 @@ func getArticles(siteCode string, startDate string, endDate string) []*SearchArt
 	queryParams.Add("sort", "lastpublished desc")
 
 	url := fmt.Sprintf("%s?%s", GannettApiSearchRoot, queryParams.Encode())
-	log.Println(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Warningf(`

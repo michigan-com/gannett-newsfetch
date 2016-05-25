@@ -52,7 +52,6 @@ func PrepareEnvironment() {
 	env, _ := config.GetEnv()
 
 	siteCodeSplit := strings.Split(env.SiteCodes, ",")
-	log.Info(env)
 	siteCodes := make([]string, 0, len(siteCodeSplit))
 	for _, code := range siteCodeSplit {
 		if code != "" {

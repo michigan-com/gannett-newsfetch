@@ -16,18 +16,22 @@ import (
 var cleanupCommand = &cobra.Command{
 	Use:   "scrape-and-summarize",
 	Short: "Grab stories that we see in chartbeat but not the Gannett API",
-	Run:   scrapeAndSummarize,
+	Run:   scrapeAndSummarizeCmd,
 }
 
-func scrapeAndSummarize(command *cobra.Command, args []string) {
+func scrapeAndSummarizeCmd(command *cobra.Command, args []string) {
 	var envConfig, _ = config.GetEnv()
+	ScrapeAndSummarize(envConfig.MongoUri)
+}
+
+func ScrapeAndSummarize(mongoUri string) {
 	var articleWait sync.WaitGroup
-	if envConfig.MongoUri == "" {
+	if mongoUri == "" {
 		log.Warning("No mongo URI specified, this command is basically useless")
 		return
 	}
 
-	session := lib.DBConnect(envConfig.MongoUri)
+	session := lib.DBConnect(mongoUri)
 	toScrape := session.DB("").C("ToScrape")
 	defer session.Close()
 
@@ -68,7 +72,7 @@ func scrapeAndSummarize(command *cobra.Command, args []string) {
 
 		if len(toSummarize) > 0 {
 			log.Info("Summarizing articles...")
-			_, err := ProcessSummaries(toSummarize, session)
+			_, err := ProcessSummaries(toSummarize, mongoUri)
 			if err != nil {
 				log.Errorf("Failed to process summaries: %v", err)
 			}
