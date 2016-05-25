@@ -2,7 +2,7 @@ package lib
 
 import "time"
 
-func SameDate(date1, date2 time.Time) bool {
+func SameTime(date1, date2 time.Time) bool {
 	date1 = date1.UTC()
 	date2 = date2.UTC()
 	return date1.Year() == date2.Year() &&
@@ -17,7 +17,7 @@ func SameDate(date1, date2 time.Time) bool {
 	Given a string date, return the date. If anything goes wrong, return time.Now()
 */
 func GannettDateStringToDate(dateString string) time.Time {
-	// https://golang.org/src/time/format.go
+	// https://golang.org/src/time/format.go#L64
 	// Idk, a regular date string wasnt working, cause why would it
 	date, err := time.Parse(time.RFC3339Nano, dateString)
 	if err != nil {

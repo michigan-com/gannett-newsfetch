@@ -30,16 +30,13 @@ type ArticlesResponse struct {
  * Use for the /search/v4 api
  */
 type SearchArticle struct {
-	AssetId         int         `json:"assetId"`
-	Headline        string      `json:"headline"`
-	Ssts            Ssts        `json:"ssts"`
-	Urls            urls        `json:"urls"`
-	DatePublished   string      `json:"datePublished"`
-	SolrFields      Solr        `json:"requestedSolrFields"`
-	PromoBrief      string      `json:"promoBrief"`
-	Attribution     attribution `json:"attribution"`
-	Photo           PhotoInfo   `json:"photo"`
-	StoryHighlights []string    `json:"storyHighlights"`
+	AssetId       int    `json:"assetId"`
+	Headline      string `json:"headline"`
+	Ssts          Ssts   `json:"ssts"`
+	Urls          urls   `json:"urls"`
+	DatePublished string `json:"datePublished"`
+	SolrFields    Solr   `json:"requestedSolrFields"`
+	PromoBrief    string `json:"promoBrief"`
 }
 
 type Ssts struct {

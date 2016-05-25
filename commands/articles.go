@@ -23,6 +23,11 @@ var articlesCmd = &cobra.Command{
 }
 
 func articleCmdRun(command *cobra.Command, args []string) {
+	GetArticles()
+}
+
+func GetArticles() {
+
 	var startTime time.Time = time.Now()
 	var envConfig, _ = config.GetEnv()
 	var apiConfig, _ = config.GetApiConfig()
@@ -106,7 +111,7 @@ func shouldSummarizeArticle(article *api.SearchArticle, session *mgo.Session) bo
 	datePublished := lib.GannettDateStringToDate(article.DatePublished)
 	if err == mgo.ErrNotFound {
 		return true
-	} else if !lib.SameDate(datePublished, storedArticle.Created_at) {
+	} else if !lib.SameTime(datePublished, storedArticle.Created_at) {
 		return true
 	} else if len(storedArticle.Summary) == 0 {
 		return true
