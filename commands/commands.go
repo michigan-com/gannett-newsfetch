@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -50,18 +49,6 @@ func AddFlags() {
 */
 func PrepareEnvironment() {
 	env, _ := config.GetEnv()
-
-	siteCodeSplit := strings.Split(env.SiteCodes, ",")
-	siteCodes := make([]string, 0, len(siteCodeSplit))
-	for _, code := range siteCodeSplit {
-		if code != "" {
-			siteCodes = append(siteCodes, code)
-		}
-	}
-
-	if len(siteCodes) == 0 {
-		log.Fatal("No site codes input, please set the SITE_CODES env variable")
-	}
 
 	log.Info(fmt.Sprintf(`
 
