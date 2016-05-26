@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -49,6 +50,8 @@ func AddFlags() {
 */
 func PrepareEnvironment() {
 	env, _ := config.GetEnv()
+
+	siteCodeSplit := strings.Split(env.SiteCodes, ",")
 
 	log.Info(fmt.Sprintf(`
 

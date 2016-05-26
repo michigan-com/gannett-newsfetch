@@ -36,8 +36,9 @@ func GetArticles() {
 	articleChannel := make(chan *api.SearchArticle, len(apiConfig.SiteCodes)*100)
 	articlesToScrape := make([]interface{}, 0, len(apiConfig.SiteCodes)*100)
 
-	if len(apiConfig.SiteCodes) == 0 {
+	if len(envConfig.SiteCodes) == 0 {
 		log.Fatal("No site codes input, please set the SITE_CODES env variable")
+		return
 	}
 
 	// Fetch each markets' articles in parallel
