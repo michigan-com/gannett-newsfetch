@@ -36,6 +36,10 @@ func GetArticles() {
 	articleChannel := make(chan *api.SearchArticle, len(apiConfig.SiteCodes)*100)
 	articlesToScrape := make([]interface{}, 0, len(apiConfig.SiteCodes)*100)
 
+	if len(apiConfig.SiteCodes) == 0 {
+		log.Fatal("No site codes input, please set the SITE_CODES env variable")
+	}
+
 	// Fetch each markets' articles in parallel
 	log.Info("Fetching articles for all sites ...")
 	for _, code := range apiConfig.SiteCodes {
