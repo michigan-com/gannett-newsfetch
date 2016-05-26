@@ -21,8 +21,9 @@ type SummaryResponse struct {
 */
 func ProcessSummaries(toSummarize []interface{}, mongoUri string) (*SummaryResponse, error) {
 	summResp := &SummaryResponse{}
-
 	session := lib.DBConnect(mongoUri)
+	defer session.Close()
+
 	bulk := session.DB("").C("ToSummarize").Bulk()
 	bulk.Upsert(toSummarize...)
 	_, err := bulk.Run()
