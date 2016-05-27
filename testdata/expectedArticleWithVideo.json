@@ -1,0 +1,121 @@
+{
+  "_id": "57487443153e875e0bc85f54",
+  "article_id": 84913242,
+  "source": "usatoday",
+  "sections": [
+    "money"
+  ],
+  "photo": {
+    "caption": "Gravity Payments CEO Dan Price with his Hawaii team.. (Photo: Gravity Payments.)",
+    "credit": "Gravity Payments",
+    "full": {
+      "url": "http://www.gannett-cdn.com/media/2016/05/25/USATODAY/USATODAY/635997839958089163-XXX-Dan-and-the-Hawaii-team.jpg",
+      "width": 960,
+      "height": 678
+    },
+    "thumbnail": {
+      "url": "http://www.gannett-cdn.com/-mm-/29d59d129b2712b5076d9d8811ee742391e00b0b/c=83-0-876-678/local/-/media/2016/05/25/USATODAY/USATODAY/635997839958089163-XXX-Dan-and-the-Hawaii-team.jpg",
+      "width": 793,
+      "height": 678
+    },
+    "small": {
+      "url": "http://www.gannett-cdn.com/-mm-/46f78a37b3053d1d8e29ef7cecfc51511ff13603/r=500x353/local/-/media/2016/05/25/USATODAY/USATODAY/635997839958089163-XXX-Dan-and-the-Hawaii-team.jpg",
+      "width": 500,
+      "height": 353
+    },
+    "crops": {
+      "1_1": {
+        "url": "http://www.gannett-cdn.com/-mm-/85cfaed6f89ce52c0d57720f8b35666e11140721/c=141-0-819-678/local/-/media/2016/05/25/USATODAY/USATODAY/635997839958089163-XXX-Dan-and-the-Hawaii-team.jpg",
+        "width": 678,
+        "height": 678
+      },
+      "4_3": {
+        "url": "http://www.gannett-cdn.com/-mm-/62b93826e4581251cb8e73d28a02dffbaff8bf36/c=29-0-931-678/local/-/media/2016/05/25/USATODAY/USATODAY/635997839958089163-XXX-Dan-and-the-Hawaii-team.jpg",
+        "width": 902,
+        "height": 678
+      },
+      "3_4": {
+        "url": "http://www.gannett-cdn.com/-mm-/91f1d1fc1e042cef0fe7cae0c72199bef38a8ff7/c=226-0-735-678/local/-/media/2016/05/25/USATODAY/USATODAY/635997839958089163-XXX-Dan-and-the-Hawaii-team.jpg",
+        "width": 509,
+        "height": 678
+      },
+      "16_9": {
+        "url": "http://www.gannett-cdn.com/-mm-/d1b60889b2fd1b05278b845ed5dbbcd19a0973c3/c=0-68-960-610/local/-/media/2016/05/25/USATODAY/USATODAY/635997839958089163-XXX-Dan-and-the-Hawaii-team.jpg",
+        "width": 960,
+        "height": 542
+      },
+      "9_16": {
+        "url": "http://www.gannett-cdn.com/-mm-/94d298b672771e78c6122588a84a9a5de67b0241/c=290-0-670-678/local/-/media/2016/05/25/USATODAY/USATODAY/635997839958089163-XXX-Dan-and-the-Hawaii-team.jpg",
+        "width": 380,
+        "height": 678
+      },
+      "front_thumb": {
+        "url": "http://www.gannett-cdn.com/-mm-/29d59d129b2712b5076d9d8811ee742391e00b0b/c=83-0-876-678/local/-/media/2016/05/25/USATODAY/USATODAY/635997839958089163-XXX-Dan-and-the-Hawaii-team.jpg",
+        "width": 793,
+        "height": 678
+      }
+    }
+  },
+  "video": {
+    "thumbnail": "http://videos.usatoday.net/Brightcove2/29906170001/2016/05/29906170001_4912386339001_4912341302001-th.jpg?pubId=29906170001",
+    "videostill": "http://videos.usatoday.net/Brightcove2/29906170001/2016/05/29906170001_4912384598001_4912341302001-vs.jpg?pubId=29906170001",
+    "length": "02:06",
+    "renditions": [
+      {
+        "duration": 126130,
+        "url": "http://videos.usatoday.net/Brightcove2/29906170001/2016/05/29906170001_4912385621001_4912341302001.mp4",
+        "size": 28477624,
+        "width": 1280,
+        "height": 720,
+        "encodingrate": 1804000
+      },
+      {
+        "duration": 126130,
+        "url": "http://videos.usatoday.net/Brightcove2/29906170001/2016/05/29906170001_4912385616001_4912341302001.mp4",
+        "size": 19379034,
+        "width": 720,
+        "height": 404,
+        "encodingrate": 1226000
+      },
+      {
+        "duration": 126130,
+        "url": "http://videos.usatoday.net/Brightcove2/29906170001/2016/05/29906170001_4912386355001_4912341302001.mp4",
+        "size": 13655392,
+        "width": 640,
+        "height": 360,
+        "encodingrate": 863000
+      },
+      {
+        "duration": 126130,
+        "url": "http://videos.usatoday.net/Brightcove2/29906170001/2016/05/29906170001_4912386530001_4912341302001.mp4",
+        "size": 5773686,
+        "width": 480,
+        "height": 270,
+        "encodingrate": 363000
+      },
+      {
+        "duration": 126130,
+        "url": "http://videos.usatoday.net/Brightcove2/29906170001/2016/05/29906170001_4912384607001_4912341302001.mp4",
+        "size": 3424858,
+        "width": 400,
+        "height": 224,
+        "encodingrate": 214000
+      }
+    ]
+  },
+  "headline": "Does a $70,000 minimum wage work? ",
+  "subheadline": "For this company it helped at first, but now the benefits may be waning.",
+  "subsection": "",
+  "created_at": "2016-05-26T15:34:35.393Z",
+  "updated_at": "0001-01-01T00:00:00.000Z",
+  "timestamp": "2016-05-26T04:06:03.343Z",
+  "storyHighlights": [],
+  "section": "money",
+  "url": "http://www.usatoday.com/story/money/2016/05/26/does-70000-minimum-wage-work/84913242/",
+  "body": "NOTE THIS STORY IS EMBARGOED UNTIL 12:01 A.M.\n\nAbout a year ago, Gravity Payments CEO Dan Price turned the national debate over a $15 minimum wage inside out by announcing that he was raising the salaries of his 100 or so employees to at least $70,000.\nWith shoulder length hair and Brad Pitt looks, Price, then 31, made international headlines and was lionized as a hero of the working class. Most of his employees rejoiced. Two quit in anger. Rush Limbaugh denounced him as a socialist.\nMonths later, Price’s motives were questioned as a result of a lawsuit that his older brother and partner filed against him. On the eve of the trial, Gravity, which processes credit card transactions for small businesses, has released its financial results over the past year to USA TODAY and on its website.\n“We want a chance to tell the story rather than having it come out as bullet points” during the trial, says company spokesman Ryan Pirkle.\nThe narrative provides something of a case study on the impact of big raises on a company’s bottom line.\nIn a nutshell: It’s complicated. Revenue at the Seattle-based firm has soared, though that largely appears to be due to the worldwide publicity generated by the announcement. Profits surged as well, but have dipped so far this year, in part because of the higher labor costs but mostly because of other one-time factors.  Employees describe more comfortable, stress-free lives, allowing them to better focus on their jobs.  And some other firms inspired by Price to lift wages dramatically are reporting positive outcomes.\nThe lesson? Big pay hikes may yield surprisingly beneficial results, especially in the current tight labor market. But the outsized, across-the-board increase Price shelled out should not be a benchmark for most companies, experts say.\nPrice says he wasn’t primarily thinking of the bottom line when he announced the raises on April 13, 2015. “It was so people who are giving their blood, sweat and tears for our clients can live a normal life and pay their bills,” he said in an interview.\nPrice said he would boost minimum pay gradually to $70,000 by the end of 2017 for all staffers, including low-paid customer support representatives. Those above that threshold got $5,000 raises.  Over the past 13 months, the average salary at Gravity has risen 42%, from $46,200 to $65,700. To cover half the cost, Price slashed his own compensation from $1.1 million to $70,000. Most employees celebrated but two quit, saying the raises unfairly rewarded some of the weakest performers.\nYet with America bemoaning longstanding wage stagnation and a yawning divide between the pay of CEOs and their employees, the swashbuckling move struck a national nerve.\n\n\nPrice says the idea began bubbling a few years ago when he read research that showed happiness improved as incomes grew but only up to about $75,000. Then, a couple of weeks before the announcement, he went hiking with a friend who was struggling with how to pay a $200 monthly rent increase on her $40,000 salary. Price says he resolved then to set a $70,000 minimum salary at Gravity.\nShortly after his announcement, however, Price’s brother, Lucas, sued him, saying Dan paid himself “excessive compensation.” He demanded that Dan buy out his minority share. Court exhibits show Dan earned about $1 million a year from 2010 through 2014, except for the $2 million he netted in 2012.\nHere’s the rub: A Bloomberg BusinessWeek article last December revealed that Price was served with the lawsuit on March 16, two weeks before the hike with his friend and a month before he announced the raises. The pay increases appeared to be an effort to deflect claims that he was greedy and perhaps tie up profits in salaries to avoid a big payout to Lucas, the story said.\n“I think the facts and sworn testimony flatly contradict that,” Price told USA TODAY. He notes that he began writing online of his concerns about income inequality well before the announcement and doled out 16% average annual raises from 2012 to 2014 after a conversation with a disgruntled employee. The trial, set to begin Tuesday, could lay bare the timeline.\nWhat’s not in dispute is that the raises have been a bonanza for the company. Gravity was inundated with 4,600 customer inquiries the first two weeks after the announcement, vs. 30 a month previously. The company added 4,155 new clients last year, a 55% increase from 2014, compared to typical 5% growth. Some were inspired by the raises, while the news made others aware of Gravity’s discount prices. Yet several customers left in anticipation of rising fees and declining service or concerns about the implication of the raises for $15 minimum wage proposals, according to a Harvard Business School case study. Overall, however, customer attrition fell to about 5% from 9%.\n\nCompany revenue also leaped 35% to $21.8 million last year from $16.1 million in 2014. And despite a $2 million increase in payroll costs, profits jumped from $3.5 million to $6.5 million. (As a private company, Gravity does not typically release its financial results.)\nThe picture is a bit fuzzier this year. Through April, Gravity has added 1,643 clients, up from 1,057 in the year-ago period. Yet customer attrition also has edged up to 6.6% -- at least a small part of which can be traced to fallout from the Bloomberg BusinessWeek  story. In the first quarter, revenue rose 33% vs. a ;year ago to $5.7 million, but profits fell about $100,000, or 7%, to $1.3 million. Company spokesman RyanPirkle blames a one-time $250,000 software investment and 24 new hires who are still gearing up to produce maximum revenue. Without the raises, profits would have been up, but they’re expected to increase in coming quarters.\n\n\nPrice acknowledges that the media firestorm played a role in generating the new business but argues that alleviating employee stress has also been a factor. “When you remove the distractions, you become significantly more capable,” he says. He points to customer attrition as a metric unlikely to be influenced by media reports.\nEmployee turnover fell 19% last year compared to the average of the past six years. Gravity has been flooded with 30,000 applications, up from an average 3,000 or so a year. A monthly company survey that gauges employee happiness found a bump just after the announcement but then a drop to pre-$70,000 levels – consistent with a widely-held theory that people return to a baseline level of happiness despite positive or negative life events.\nStill, Pirkle says the raises have allowed employees to move closer to the office and cut commute times, and plan for the future without living paycheck to paycheck. Retirement account contributions are up 130%, more employees are buying first homes and 10 are expecting, up from a typical zero to two each year.\nCody Boorman, 23, and his wife decided to have their first child about a year early after his salary at Gravity vaulted from $42,000 to $60,000 the past year on the way to the $70,000 salary in 2017. He was able to finish paying off the balance of his $83,000 debt and is contributing $18,000 a year to his 401(k) account, hoping to retire at 33. The raise “really did take the stress away in terms of worrying about tomorrow,” he says.\nAlyssa O’Neal, 22, a single mother, says her days were marked by an undercurrent of anxiety before the customer support rep’s pay jumped from $35,000 to $50,000. Now, she’s poised to move into a more expensive apartment that cuts her nearly two-hour commute by more than half, plans to start college next spring, and can buy a daily cup of coffee without stressing. “I’m able to afford the small (things) that put my mind at ease,” she says. She also can focus more intently on her job. “It really just cleared my mind,” she says.\nTim Low, vice president of PayScale, a Seattle-based compensation consulting firm, says that over time, paying above-market salaries can help hold on to employees, improving customer service and retention. But he says the instant spike in new customers and revenue at Gravity was more likely a result of the publicity.\n\n\nStill, some other employers inspired by Price’s gambit to enact significant but more measured increases are pleased with the results. Megan Driscoll, CEO of Pharmalogics Recruiting of Boston, boosted base pay for her 62 staffers from $37,500 to $50,000 early this year. The company, which recruits employees for drug companies, is now meeting its goal of adding 10 recruiters a month; before it fell short by half, she says.  And 80% of recruiters are hitting their target of referring eight candidates a week, up from 50%. Revenue is set to reach $11 million this year, up from $6.7 million in 2015, while profit margins are on track to nearly double, she says.\nMount It of San Diego, which sells electronics and wall mounts, raised the average wages of its 25 employees by 15% this year. Co-owner Firat Ozkan says an average of one warehouse worker used to quit every two weeks, increasing costs, but no one has left in several months. The workers also have cut down on misdirected packages and breakage. Profits are up despite the higher labor costs, he says, because of both higher revenue and the improved efficiency.\nPayScale's Low says dramatically lifting salaries can be an effective strategy to attract and retain employees, especially with unemployment at a meager 5%. But notwithstanding the public relations benefits Price realized, he says raises generally should be market-based and not alienate existing high paid staffers. Perhaps half as much of a hike would do the trick.\nPrice says he understands the criticism of his across-the-board raises. But, he adds, “It was the best I can do.”",
+  "summary": [
+    "Price said he would boost minimum pay gradually to $70,000 by the end of 2017 for all staffers, including low-paid customer support representatives.",
+    "Yet with America bemoaning longstanding wage stagnation and a yawning divide between the pay of CEOs and their employees, the swashbuckling move struck a national nerve.",
+    "Yet several customers left in anticipation of rising fees and declining service or concerns about the implication of the raises for $15 minimum wage proposals, according to a Harvard Business School case study."
+  ]
+}

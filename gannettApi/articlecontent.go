@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"sync"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -33,112 +34,75 @@ func getAssetUrl(assetId int) string {
 	return fmt.Sprintf("%s/%d?consumer=newsfetch&transform=full", GannettApiPresentationRoot, assetId)
 }
 
-func GetAssetArticleAndPhoto(articleId int) (*AssetArticle, *PhotoInfo) {
-	fullArticle := &AssetArticle{}
-	photo := &PhotoInfo{}
+func GetAssetArticleAndPhoto(articleId int) *m.AssetArticleContent {
+	assetArticle := &m.AssetArticle{}
 
-	fullArticle = GetAssetArticle(articleId)
+	GetAsset(articleId, assetArticle)
 
-	// Fetch the photo from the asset api (we only get a pointer to the photo)
-	if fullArticle.Links.Photo != nil {
-		photoAssetId := fullArticle.Links.Photo.Id
-		photo = GetAssetPhoto(photoAssetId)
-	} else {
-		photo = nil
+	assetArticleContent := &m.AssetArticleContent{
+		Article: assetArticle,
+		Assets:  GetArticleAssets(assetArticle.Links.Assets),
 	}
-
-	return fullArticle, photo
+	return assetArticleContent
 }
 
-func GetAssetArticle(articleId int) *AssetArticle {
-	var fullArticle *AssetArticle = &AssetArticle{}
+/** Get Photos, videos, and (TODO) galleries stored as IDs in an article's metadata */
+func GetArticleAssets(assets []*m.GannettApiAsset) *m.ArticleAssets {
+	articleAssets := &m.ArticleAssets{}
+	var assetWait sync.WaitGroup
 
-	url := getAssetUrl(articleId)
+	for _, asset := range assets {
+
+		assetWait.Add(1)
+		go func(asset *m.GannettApiAsset) {
+			defer assetWait.Done()
+
+			if asset.Type == "image" && asset.RelationshipTypeFlags == "PromoImage" {
+				assetPhoto := &m.AssetPhoto{}
+				err := GetAsset(asset.Id, assetPhoto)
+				if err == nil {
+					articleAssets.Photo = assetPhoto
+				}
+			} else if asset.Type == "video" {
+				assetVideo := &m.AssetVideo{}
+				err := GetAsset(asset.Id, assetVideo)
+				if err == nil {
+					articleAssets.Video = assetVideo
+				}
+			}
+		}(asset)
+	}
+	assetWait.Wait()
+
+	return articleAssets
+}
+
+func GetAsset(assetId int, assetResp m.AssetResp) error {
+	url := getAssetUrl(assetId)
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Warningf(`
+		log.Warning(`
 
-		Failed to get Article %d, http.Get() failed:
+			Failed to get asset %d, http.Get() failed
 
-			Err: %v
+				Err: %v
 
-		`, articleId, err)
-		return fullArticle
+		`, assetId, err)
+		return err
 	}
 	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(fullArticle)
+	err = assetResp.Decode(decoder)
 	if err != nil {
 		log.Warningf(`
 
-		Failed to get Article %d, json deconding failed:
-
-			Err: %v
-
-		`, articleId, err)
-		return fullArticle
-	}
-
-	return fullArticle
-}
-
-func GetAssetPhoto(photoAssetId int) *PhotoInfo {
-	photo := &PhotoInfo{}
-	assetPhotoInfo := &AssetPhotoInfo{}
-
-	url := getAssetUrl(photoAssetId)
-	photoResp, err := http.Get(url)
-	if err != nil {
-		log.Warningf(`
-
-			Failed to get Photo %d, http.Get() failed:
+			Failed to decode asset %d:
 
 				Err: %v
-
-			`, photoAssetId, err)
-		return nil
-	}
-	defer photoResp.Body.Close()
-
-	decoder := json.NewDecoder(photoResp.Body)
-	err = decoder.Decode(assetPhotoInfo)
-	if err != nil {
-		log.Warningf(`
-
-			Failed to get Photo %d, json deconding failed:
-
-				Err: %v
-
-			`, photoAssetId, err)
-		return nil
+		`, assetId, err)
+		return err
 	}
 
-	photo.AbsoluteUrl = assetPhotoInfo.AbsoluteUrl
-	photo.Caption = assetPhotoInfo.Caption
-	photo.Credit = assetPhotoInfo.Credit
-	photo.OriginalHeight, _ = strconv.Atoi(assetPhotoInfo.OriginalHeight)
-	photo.OriginalWidth, _ = strconv.Atoi(assetPhotoInfo.OriginalWidth)
-
-	crops := make(map[string]m.PhotoInfo)
-	for _, crop := range assetPhotoInfo.Crops {
-		crops[crop.Name] = m.PhotoInfo{
-			Url:    crop.Path,
-			Width:  crop.Width,
-			Height: crop.Height,
-		}
-	}
-
-	smallUrl := fmt.Sprintf("%s%s", assetPhotoInfo.PublishUrl, assetPhotoInfo.Attributes.SmallBaseName)
-	smallWidth, _ := strconv.Atoi(assetPhotoInfo.Attributes.SImageWidth)
-	smallHeight, _ := strconv.Atoi(assetPhotoInfo.Attributes.SImageHeight)
-	crops["small"] = m.PhotoInfo{
-		Url:    smallUrl,
-		Width:  smallWidth,
-		Height: smallHeight,
-	}
-
-	photo.Crops = crops
-
-	return photo
+	return nil
 }

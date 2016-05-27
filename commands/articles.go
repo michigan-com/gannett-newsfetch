@@ -33,7 +33,7 @@ func GetArticles() {
 	var apiConfig, _ = config.GetApiConfig()
 	var articleWait sync.WaitGroup
 	var totalArticles int = 0
-	articleChannel := make(chan *api.SearchArticle, len(apiConfig.SiteCodes)*100)
+	articleChannel := make(chan *m.SearchArticle, len(apiConfig.SiteCodes)*100)
 	articlesToScrape := make([]interface{}, 0, len(apiConfig.SiteCodes)*100)
 
 	if len(envConfig.SiteCodes) == 0 {
@@ -104,7 +104,7 @@ func GetArticles() {
 
 	Does a lookup based on Article.ArticleId
 */
-func shouldSummarizeArticle(article *api.SearchArticle, session *mgo.Session) bool {
+func shouldSummarizeArticle(article *m.SearchArticle, session *mgo.Session) bool {
 	// Don't summarize if it's a blacklisted article
 	if m.IsBlacklisted(article.Urls.LongUrl) {
 		return false

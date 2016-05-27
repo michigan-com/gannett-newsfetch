@@ -52,9 +52,9 @@ func ScrapeAndSummarize(mongoUri string) {
 				articleId := articleIdObj["article_id"]
 				go func(articleId int) {
 					defer articleWait.Done()
-					assetArticle, assetPhoto := api.GetAssetArticleAndPhoto(articleId)
+					assetArticleContent := api.GetAssetArticleAndPhoto(articleId)
 
-					mongoArticle := api.FormatAssetArticleForSaving(assetArticle, assetPhoto)
+					mongoArticle := api.FormatAssetArticleForSaving(assetArticleContent)
 					mongoArticle.Save(session)
 
 					articleIdQuery := bson.M{"article_id": articleId}

@@ -16,7 +16,7 @@ import (
 var testMongoUrl string = "mongodb://localhost:27017/gannett-newsfetch-test"
 
 func TestIntegration(t *testing.T) {
-	testArticle := getTestArticle()
+	testArticle := getTestArticle("./testData/expectedArticleWithVideo.json")
 	if testArticle == nil {
 		t.Fatalf("Test article json reading failed")
 	}
@@ -135,6 +135,12 @@ func compareArticles(articleOne, articleTwo *m.Article) (bool, string) {
 }
 
 func comparePhotos(photoOne, photoTwo *m.Photo) (bool, string) {
+	if photoOne == nil && photoTwo != nil {
+		return false, "ArticleOne doesnt have a photo, ArticleTwo does"
+	} else if photoOne != nil && photoTwo == nil {
+		return false, "ArticleOne has a photo, ArticleTwo does not"
+	}
+
 	if photoOne.Caption != photoTwo.Caption {
 		return false, "Captions dont match"
 	}
@@ -148,13 +154,13 @@ func comparePhotos(photoOne, photoTwo *m.Photo) (bool, string) {
 	}
 
 	// TODO
-	// if photoInfoCheck, errStr := comparePhotoInfo(photoOne.Thumbnail, photoTwo.Thumbnail); !photoInfoCheck {
-	// 	return false, errStr
-	// }
-	//
-	// if photoInfoCheck, errStr := comparePhotoInfo(photoOne.Small, photoTwo.Small); !photoInfoCheck {
-	// 	return false, errStr
-	// }
+	if photoInfoCheck, errStr := comparePhotoInfo(photoOne.Thumbnail, photoTwo.Thumbnail); !photoInfoCheck {
+		return false, errStr
+	}
+
+	if photoInfoCheck, errStr := comparePhotoInfo(photoOne.Small, photoTwo.Small); !photoInfoCheck {
+		return false, errStr
+	}
 
 	return true, ""
 }
@@ -175,8 +181,8 @@ func comparePhotoInfo(photoInfoOne, photoInfoTwo m.PhotoInfo) (bool, string) {
 	return true, ""
 }
 
-func getTestArticle() *m.Article {
-	file, err := ioutil.ReadFile("./testData/expectedArticle.json")
+func getTestArticle(jsonFilePath string) *m.Article {
+	file, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
 		fmt.Println("failed to read json article from filesystem")
 		return nil

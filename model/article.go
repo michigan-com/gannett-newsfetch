@@ -24,15 +24,10 @@ type Article struct {
 	Url             string        `bson:"url" json:"url"`
 	ShortUrl        string        `bson:"shortUrl" json:"shortUrl"`
 	Photo           *Photo        `bson:"photo" json:"photo"`
+	Video           *AssetVideo   `bson:"video" json:"video"`
 	Body            string        `bson:"body" json:"body"`
 	Summary         []string      `bson"summary" json:"summary"`
 	StoryHighlights []string      `bson"storyHighlights" json:"storyHighlights"`
-}
-
-type PhotoInfo struct {
-	Url    string `bson:"url"`
-	Width  int    `bson:"width"`
-	Height int    `bson:"height"`
 }
 
 type Photo struct {
@@ -43,6 +38,12 @@ type Photo struct {
 	Small     PhotoInfo `bson:"small"`
 
 	Crops map[string]PhotoInfo `bson:"crops"`
+}
+
+type PhotoInfo struct {
+	Url    string `bson:"url"`
+	Width  int    `bson:"width"`
+	Height int    `bson:"height"`
 }
 
 /*
@@ -64,6 +65,7 @@ func (a *Article) Save(session *mgo.Session) {
 			"created_at":      a.Created_at,
 			"url":             a.Url,
 			"photo":           a.Photo,
+			"video":           a.Video,
 			"body":            a.Body,
 			"storyHighlights": a.StoryHighlights,
 		},

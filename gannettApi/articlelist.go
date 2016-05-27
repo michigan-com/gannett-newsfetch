@@ -10,12 +10,14 @@ import (
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/andreyvit/debugflag"
+
+	m "github.com/michigan-com/gannett-newsfetch/model"
 )
 
 /*
 	Get articles within an entire day
 */
-func GetArticlesByDay(siteCode string, date time.Time) []*SearchArticle {
+func GetArticlesByDay(siteCode string, date time.Time) []*m.SearchArticle {
 	year, monthObj, day := date.Date()
 	month := int(monthObj)
 
@@ -29,8 +31,8 @@ func GetArticlesByDay(siteCode string, date time.Time) []*SearchArticle {
 	Get articles within a date range
 	Date strings should be formatted via gannettApi.FormatAsDateString
 */
-func getArticles(siteCode string, startDate string, endDate string) []*SearchArticle {
-	var articleResponse *ArticlesResponse = &ArticlesResponse{}
+func getArticles(siteCode string, startDate string, endDate string) []*m.SearchArticle {
+	var articleResponse *m.ArticlesResponse = &m.ArticlesResponse{}
 	var queryParams = GetDefaultSearchValues(siteCode)
 	queryParams.Add("fq", fmt.Sprintf("lastpublished:[%s TO %s]", startDate, endDate))
 	queryParams.Add("fq", "assettypename:text")
@@ -65,7 +67,7 @@ func getArticles(siteCode string, startDate string, endDate string) []*SearchArt
 
 			Err: %v
 		`, siteCode, err)
-		return []*SearchArticle{}
+		return []*m.SearchArticle{}
 	}
 
 	return articleResponse.Results
