@@ -27,33 +27,41 @@ func articleIdTestCase(t *testing.T, testCase ArticleIdTestCase) {
 	}
 }
 
-func ArticleContentFetchTest(t *testing.T) {
-	// articleId := 84849924
-	// expectedAssetArticle := AssetArticle{
-	// 	AssetId:  articleId,
-	// 	Headline: "Movement afterparties: 10 top events during fest weekend",
-	// 	Ssts: Ssts{
-	// 		Section:    "entertainment",
-	// 		SubSection: "music",
-	// 		Topic:      "",
-	// 		SubTopic:   "",
-	// 	},
-	// 	Links: links{
-	// 		LongUrl: AssetUrl{
-	// 			Href: "http://www.freep.com/story/entertainment/music/2016/05/24/movement-festivals-afterparties-detroit-electronic-music/84849924/",
-	// 		},
-	// 		ShortUrl: AssetUrl{
-	// 			Href: "http://on.freep.com/1TC0VSH",
-	// 		},
-	// 		Photo: &AssetPhoto{
-	// 			Id: 80766590,
-	// 		},
-	// 	},
-	// 	PublishDate:        "2016-05-24T18:27:12.213Z",
-	// 	InitialPublishDate: "2016-05-24T18:27:12.213Z",
-	// 	PromoBrief:         "Detroit will be pulsating with electronic music and dance parties throughout Memorial Day Weekend",
-	// 	Attribution: AssetAttribution{
-	// 		Author: "Tamara Warren",
-	// 	},
-	// }
+func TestArticleScrapingNoPhotoOrVideo(t *testing.T) {
+	noPhotoArticleId := 76033594
+	assetArticleContent := GetAssetArticleContent(noPhotoArticleId)
+
+	if assetArticleContent.Assets.Photo != nil {
+		t.Fatalf("Article %d should have Photo == nil", noPhotoArticleId)
+	}
+
+	if assetArticleContent.Assets.Video != nil {
+		t.Fatalf("Article %d should have Video == nil", noPhotoArticleId)
+	}
+}
+
+func TestArticleScrapingPhotoNoVideo(t *testing.T) {
+	noVideoArticleId := 85024442
+	assetArticleContent := GetAssetArticleContent(noVideoArticleId)
+
+	if assetArticleContent.Assets.Photo == nil {
+		t.Fatalf("Article %d should have a photo", noVideoArticleId)
+	}
+
+	if assetArticleContent.Assets.Video != nil {
+		t.Fatalf("Article %d should not have a video", noVideoArticleId)
+	}
+}
+
+func TestArticleScarpingPhotoAndVideo(t *testing.T) {
+	articleId := 84913242
+	assetArticleContent := GetAssetArticleContent(articleId)
+
+	if assetArticleContent.Assets.Photo == nil {
+		t.Fatalf("Article %d should have a photo", articleId)
+	}
+
+	if assetArticleContent.Assets.Video == nil {
+		t.Fatalf("Article %d should have a video", articleId)
+	}
 }

@@ -16,35 +16,42 @@ import (
 var testMongoUrl string = "mongodb://localhost:27017/gannett-newsfetch-test"
 
 func TestIntegration(t *testing.T) {
-	testArticle := getTestArticle("./testData/expectedArticleWithVideo.json")
-	if testArticle == nil {
-		t.Fatalf("Test article json reading failed")
+	jsonFiles := []string{
+		"./testData/expectedArticleWithVideo.json",
+		// "./testData/expectedArticleNoPhoto.json",
 	}
 
-	testArticleId := testArticle.ArticleId
-	session := lib.DBConnect(testMongoUrl)
-	toScrapeCol := session.DB("").C("ToScrape")
-	articleCol := session.DB("").C("Article")
-	toScrapeCol.Insert(bson.M{"article_id": testArticleId})
+	for _, jsonFile := range jsonFiles {
+		testArticle := getTestArticle(jsonFile)
+		if testArticle == nil {
+			t.Fatalf("Test article json reading failed")
+		}
 
-	c.ScrapeAndSummarize(testMongoUrl)
+		testArticleId := testArticle.ArticleId
+		session := lib.DBConnect(testMongoUrl)
+		toScrapeCol := session.DB("").C("ToScrape")
+		articleCol := session.DB("").C("Article")
+		toScrapeCol.Insert(bson.M{"article_id": testArticleId})
 
-	count, err := toScrapeCol.Count()
-	if count != 0 {
-		t.Fatalf("Should be no article IDs in the toScrape collection, there are %d", count)
-	} else if err != nil {
-		t.Fatalf("Failed to get toScrape Count: %v", err)
-	}
+		c.ScrapeAndSummarize(testMongoUrl)
 
-	storedArticle := &m.Article{}
-	err = articleCol.Find(bson.M{"article_id": testArticleId}).One(storedArticle)
-	if err != nil {
-		t.Fatalf("failed to get article from article collection: %v", err)
-	}
+		count, err := toScrapeCol.Count()
+		if count != 0 {
+			t.Fatalf("Should be no article IDs in the toScrape collection, there are %d", count)
+		} else if err != nil {
+			t.Fatalf("Failed to get toScrape Count: %v", err)
+		}
 
-	sameArticle, errString := compareArticles(testArticle, storedArticle)
-	if !sameArticle {
-		t.Fatalf("Articles are not equal: %s", errString)
+		storedArticle := &m.Article{}
+		err = articleCol.Find(bson.M{"article_id": testArticleId}).One(storedArticle)
+		if err != nil {
+			t.Fatalf("failed to get article from article collection: %v", err)
+		}
+
+		sameArticle, errString := compareArticles(testArticle, storedArticle)
+		if !sameArticle {
+			t.Fatalf("Article %d failed article comparison: %s", testArticleId, errString)
+		}
 	}
 }
 
@@ -104,6 +111,10 @@ func compareArticles(articleOne, articleTwo *m.Article) (bool, string) {
 		return false, errStr
 	}
 
+	if videoCheck, errStr := compareVideos(articleOne.Video, articleTwo.Video); !videoCheck {
+		return false, errStr
+	}
+
 	if articleOne.Body != articleTwo.Body {
 		return false, "Body doesnt match"
 	}
@@ -136,7 +147,7 @@ func compareArticles(articleOne, articleTwo *m.Article) (bool, string) {
 
 func comparePhotos(photoOne, photoTwo *m.Photo) (bool, string) {
 	if photoOne == nil && photoTwo != nil {
-		return false, "ArticleOne doesnt have a photo, ArticleTwo does"
+		return false, "ArticleOne doesnt have a photo, but ArticleTwo does"
 	} else if photoOne != nil && photoTwo == nil {
 		return false, "ArticleOne has a photo, ArticleTwo does not"
 	}
@@ -176,6 +187,68 @@ func comparePhotoInfo(photoInfoOne, photoInfoTwo m.PhotoInfo) (bool, string) {
 
 	if photoInfoOne.Height != photoInfoTwo.Height {
 		return false, "height dont match"
+	}
+
+	return true, ""
+}
+
+func compareVideos(videoOne, videoTwo *m.AssetVideo) (bool, string) {
+	if videoOne == nil && videoTwo != nil {
+		return false, "ArticleOne doesnt have a video, but ArticleTwo does"
+	} else if videoOne != nil && videoTwo == nil {
+		return false, "ArticleTwo has a video, but ArticleTwo does not"
+	}
+
+	if videoOne.Thumbnail != videoTwo.Thumbnail {
+		return false, "Video thumbnails dont match"
+	}
+
+	if videoOne.VideoStill != videoTwo.VideoStill {
+		return false, "VideoStills dont match"
+	}
+
+	if videoOne.Length != videoTwo.Length {
+		return false, "Video length doesnt match"
+	}
+
+	if renditionCheck, errStr := compareVideoRenditions(videoOne.Renditions, videoTwo.Renditions); !renditionCheck {
+		return false, errStr
+	}
+
+	return true, ""
+}
+
+func compareVideoRenditions(renditionsOne, renditionsTwo []m.VideoRendition) (bool, string) {
+	if len(renditionsOne) != len(renditionsTwo) {
+		return false, "Length of renditions dont match"
+	}
+
+	for i, rendition := range renditionsOne {
+		otherRendition := renditionsTwo[i]
+
+		if rendition.EncodingRate != otherRendition.EncodingRate {
+			return false, fmt.Sprintf("Rendition %d has mismatched encoding rates", i)
+		}
+
+		if rendition.Height != otherRendition.Height {
+			return false, fmt.Sprintf("rendition %d heights dont match", i)
+		}
+
+		if rendition.Width != otherRendition.Width {
+			return false, fmt.Sprintf("rendition %d widths dont match", i)
+		}
+
+		if rendition.Size != otherRendition.Size {
+			return false, fmt.Sprintf("rendition %d sizes dont match", i)
+		}
+
+		if rendition.Url != otherRendition.Url {
+			return false, fmt.Sprintf("rendition %d urls dont match", i)
+		}
+
+		if rendition.Duration != otherRendition.Duration {
+			return false, fmt.Sprintf("rendition %d durations dont match", i)
+		}
 	}
 
 	return true, ""

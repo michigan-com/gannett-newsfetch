@@ -34,7 +34,7 @@ func getAssetUrl(assetId int) string {
 	return fmt.Sprintf("%s/%d?consumer=newsfetch&transform=full", GannettApiPresentationRoot, assetId)
 }
 
-func GetAssetArticleAndPhoto(articleId int) *m.AssetArticleContent {
+func GetAssetArticleContent(articleId int) *m.AssetArticleContent {
 	assetArticle := &m.AssetArticle{}
 
 	GetAsset(articleId, assetArticle)
