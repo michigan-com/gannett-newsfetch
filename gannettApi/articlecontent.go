@@ -43,6 +43,15 @@ func GetAssetArticleContent(articleId int) *m.AssetArticleContent {
 		Article: assetArticle,
 		Assets:  GetArticleAssets(assetArticle.Links.Assets),
 	}
+
+	if assetArticle.Links.Photo != nil {
+		assetPhoto := &m.AssetPhoto{}
+		err := GetAsset(assetArticle.Links.Photo.Id, assetPhoto)
+		if err == nil {
+			assetArticleContent.Assets.Photo = assetPhoto
+		}
+	}
+
 	return assetArticleContent
 }
 
@@ -57,13 +66,7 @@ func GetArticleAssets(assets []*m.GannettApiAsset) *m.ArticleAssets {
 		go func(asset *m.GannettApiAsset) {
 			defer assetWait.Done()
 
-			if asset.Type == "image" && asset.RelationshipTypeFlags == "PromoImage" {
-				assetPhoto := &m.AssetPhoto{}
-				err := GetAsset(asset.Id, assetPhoto)
-				if err == nil {
-					articleAssets.Photo = assetPhoto
-				}
-			} else if asset.Type == "video" {
+			if asset.Type == "video" {
 				assetVideo := &m.AssetVideo{}
 				err := GetAsset(asset.Id, assetVideo)
 				if err == nil {

@@ -41,7 +41,7 @@ func TestArticleScrapingNoPhotoOrVideo(t *testing.T) {
 }
 
 func TestArticleScrapingPhotoNoVideo(t *testing.T) {
-	noVideoArticleId := 85024442
+	noVideoArticleId := 85059214
 	assetArticleContent := GetAssetArticleContent(noVideoArticleId)
 
 	if assetArticleContent.Assets.Photo == nil {

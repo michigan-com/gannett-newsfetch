@@ -60,6 +60,7 @@ type Links struct {
 	LongUrl  AssetUrl           `json:"longUrl"`
 	ShortUrl AssetUrl           `json:"shortUrl"`
 	Assets   []*GannettApiAsset `json:"assets"`
+	Photo    *PhotoAsset        `json:"photo"`
 }
 
 type AssetUrl struct {
@@ -119,6 +120,10 @@ type GannettApiAsset struct {
 	Id                    int    `json:"id"`
 	Type                  string `json:"type"`
 	RelationshipTypeFlags string `json:"relationshipTypeFlags"` // used to find if this is the primary image
+}
+
+type PhotoAsset struct {
+	Id int `json:"id"`
 }
 
 /**
