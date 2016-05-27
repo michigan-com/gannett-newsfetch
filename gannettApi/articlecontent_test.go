@@ -28,28 +28,38 @@ func articleIdTestCase(t *testing.T, testCase ArticleIdTestCase) {
 }
 
 func TestArticleScrapingNoPhotoOrVideo(t *testing.T) {
-	noPhotoArticleId := 76033594
-	assetArticleContent := GetAssetArticleContent(noPhotoArticleId)
-
-	if assetArticleContent.Assets.Photo != nil {
-		t.Fatalf("Article %d should have Photo == nil", noPhotoArticleId)
+	articleIds := []int{
+		85059644, 76033594,
 	}
 
-	if assetArticleContent.Assets.Video != nil {
-		t.Fatalf("Article %d should have Video == nil", noPhotoArticleId)
+	for _, articleId := range articleIds {
+		assetArticleContent := GetAssetArticleContent(articleId)
+
+		if assetArticleContent.Assets.Photo != nil {
+			t.Fatalf("Article %d should have Photo == nil", articleId)
+		}
+
+		if assetArticleContent.Assets.Video != nil {
+			t.Fatalf("Article %d should have Video == nil", articleId)
+		}
 	}
 }
 
 func TestArticleScrapingPhotoNoVideo(t *testing.T) {
-	noVideoArticleId := 85059214
-	assetArticleContent := GetAssetArticleContent(noVideoArticleId)
-
-	if assetArticleContent.Assets.Photo == nil {
-		t.Fatalf("Article %d should have a photo", noVideoArticleId)
+	articleIds := []int{
+		85015624, 85059214,
 	}
 
-	if assetArticleContent.Assets.Video != nil {
-		t.Fatalf("Article %d should not have a video", noVideoArticleId)
+	for _, articleId := range articleIds {
+		assetArticleContent := GetAssetArticleContent(articleId)
+
+		if assetArticleContent.Assets.Photo == nil {
+			t.Fatalf("Article %d should have a photo", articleId)
+		}
+
+		if assetArticleContent.Assets.Video != nil {
+			t.Fatalf("Article %d should not have a video", articleId)
+		}
 	}
 }
 
