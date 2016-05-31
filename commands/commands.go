@@ -35,6 +35,7 @@ func Run(version, commit string) {
 func AddCommands() {
 	NewsfetchCommand.AddCommand(articlesCmd)
 	NewsfetchCommand.AddCommand(cleanupCommand)
+	NewsfetchCommand.AddCommand(breakingCommand)
 }
 
 /*
