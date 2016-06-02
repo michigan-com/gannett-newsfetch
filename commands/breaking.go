@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+	"net/http"
 	"sync"
 	"time"
 
@@ -34,17 +36,16 @@ func breakingCmdRun(command *cobra.Command, argv []string) {
 		return
 	}
 
-	FetchBreakingNews(envConfig.MongoUri, apiConfig.SiteCodes)
+	FetchBreakingNews(envConfig.MongoUri, apiConfig.SiteCodes, envConfig.GnapiDomain)
 }
 
-func FetchBreakingNews(mongoUri string, siteCodes []string) {
-	var breakingWait sync.WaitGroup
-	breakingChannel := make(chan *m.SearchArticle, len(siteCodes)*100)
-
+func FetchBreakingNews(mongoUri string, siteCodes []string, gnapiDomain string) {
 	session := lib.DBConnect(mongoUri)
 	defer session.Close()
 
 	for {
+		var breakingWait sync.WaitGroup
+		breakingChannel := make(chan *m.SearchArticle, len(siteCodes)*100)
 		log.Info("Fetching breaking news...")
 		for _, siteCode := range siteCodes {
 			breakingWait.Add(1)
@@ -62,6 +63,14 @@ func FetchBreakingNews(mongoUri string, siteCodes []string) {
 		log.Info("...Done fetching articles")
 
 		SaveArticles(breakingChannel, session)
+
+		if gnapiDomain != "" {
+			gnapiUrl := fmt.Sprintf("%s/%s/", gnapiDomain, "breaking-news")
+			resp, err := http.Get(gnapiUrl)
+			if err == nil {
+				resp.Body.Close()
+			}
+		}
 
 		if loop > 0 {
 			log.Infof("Sleeping for %d seconds...", loop)
@@ -120,8 +129,7 @@ func SaveArticles(breakingChannel chan *m.SearchArticle, session *mgo.Session) {
 
 	RemoveOldBreakingSnapshot(breakingCol)
 
-	log.Info("...Done saving breaking articles")
-
+	log.Infof("...Done saving breaking articles, count: %d", len(breakingArticles))
 }
 
 func RemoveOldBreakingSnapshot(col *mgo.Collection) {

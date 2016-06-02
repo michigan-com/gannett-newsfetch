@@ -11,6 +11,7 @@ type EnvConfig struct {
 	GannettApiKey string `envconfig:"gannett_api_key"`
 	SiteCodes     string `envconfig:"site_codes"`
 	SummaryVEnv   string `envconfig:"summary_v_env"`
+	GnapiDomain   string `envconfig:"gnapi_domain"`
 }
 
 type ApiConfig struct {
