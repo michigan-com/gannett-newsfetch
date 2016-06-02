@@ -29,7 +29,7 @@ func articleIdTestCase(t *testing.T, testCase ArticleIdTestCase) {
 
 func TestArticleScrapingNoPhotoOrVideo(t *testing.T) {
 	articleIds := []int{
-		85059644, 76033594,
+		76033594,
 	}
 
 	for _, articleId := range articleIds {
