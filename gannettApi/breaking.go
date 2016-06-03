@@ -20,7 +20,6 @@ func GetBreakingNews(siteCode string) []*m.SearchArticle {
 	queryParams.Add("sort", "updated desc")
 
 	url := fmt.Sprintf("%s?%s", GannettApiSearchRoot, queryParams.Encode())
-	log.Info(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Warningf(`

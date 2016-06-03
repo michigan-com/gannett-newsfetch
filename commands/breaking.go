@@ -88,8 +88,14 @@ func SaveArticles(breakingChannel chan *m.SearchArticle, session *mgo.Session) {
 	breakingArticles := make([]*m.BreakingNewsArticle, 0, 100)
 	toScrape := make([]interface{}, 0, 100)
 	for article := range breakingChannel {
+		articleId := lib.GetArticleId(article.Urls.LongUrl)
+		if articleId == -1 {
+			log.Warningf(`Failed to get id for url %s`, article.Urls.LongUrl)
+			continue
+		}
+
 		breakingArticle := &m.BreakingNewsArticle{
-			ArticleId:   article.AssetId,
+			ArticleId:   articleId,
 			Headline:    article.Headline,
 			Subheadline: article.PromoBrief,
 		}
