@@ -99,8 +99,7 @@ func SaveBreakingArticles(breakingChannel chan *m.SearchArticle, session *mgo.Se
 		// wait until we find the article before sending out the breaking news alert
 		storedArticle := &m.Article{}
 		err := articleCol.Find(bson.M{"article_id": articleId}).One(storedArticle)
-		if err == mgo.ErrNotFound {
-			log.Infof("should summarize %d", articleId)
+		if err == mgo.ErrNotFound || len(storedArticle.Summary) != 3 {
 			articleIdQuery := bson.M{"article_id": articleId}
 			toScrape = append(toScrape, articleIdQuery)
 			toScrape = append(toScrape, articleIdQuery)

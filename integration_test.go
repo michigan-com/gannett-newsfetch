@@ -55,7 +55,7 @@ func TestIntegration(t *testing.T) {
 		}
 	}
 
-	// session.DB("").DropDatabase()
+	session.DB("").DropDatabase()
 }
 
 func TestBreakingNewsIntegration(t *testing.T) {
@@ -94,7 +94,7 @@ func TestBreakingNewsIntegration(t *testing.T) {
 		t.Fatalf("Should have one breaking article now")
 	}
 
-	// session.DB("").DropDatabase()
+	session.DB("").DropDatabase()
 }
 
 func compareArticles(articleOne, articleTwo *m.Article) (bool, string) {
