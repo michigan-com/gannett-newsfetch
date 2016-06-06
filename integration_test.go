@@ -20,6 +20,8 @@ func TestIntegration(t *testing.T) {
 		"./testData/expectedArticleWithVideo.json",
 		// "./testData/expectedArticleNoPhoto.json",
 	}
+	session := lib.DBConnect(testMongoUrl)
+	defer session.Close()
 
 	for _, jsonFile := range jsonFiles {
 		testArticle := getTestArticle(jsonFile)
@@ -28,7 +30,6 @@ func TestIntegration(t *testing.T) {
 		}
 
 		testArticleId := testArticle.ArticleId
-		session := lib.DBConnect(testMongoUrl)
 		toScrapeCol := session.DB("").C("ToScrape")
 		articleCol := session.DB("").C("Article")
 		toScrapeCol.Insert(bson.M{"article_id": testArticleId})
@@ -53,6 +54,47 @@ func TestIntegration(t *testing.T) {
 			t.Fatalf("Article %d failed article comparison: %s", testArticleId, errString)
 		}
 	}
+
+	// session.DB("").DropDatabase()
+}
+
+func TestBreakingNewsIntegration(t *testing.T) {
+
+	session := lib.DBConnect(testMongoUrl)
+	defer session.Close()
+
+	testBreakingNewsUrl := "http://www.freep.com/story/news/local/michigan/2016/06/06/insanity-defense-kalamazoo-shootings/85516404/"
+	testBreakingArticle := &m.SearchArticle{
+		AssetId:    123123,
+		Urls:       m.Urls{LongUrl: testBreakingNewsUrl},
+		Headline:   "Test test test",
+		PromoBrief: "test test test test test",
+	}
+	// testArticleId := lib.GetArticleId(testBreakingNewsUrl)
+	breakingChannel := make(chan *m.SearchArticle, 1)
+	breakingChannel <- testBreakingArticle
+	close(breakingChannel)
+
+	// First, make sure thats we don't save this article as a breaking news alert because
+	// we haven't summarized the article yet
+	breakingArticles := c.SaveBreakingArticles(breakingChannel, session)
+	if len(breakingArticles) != 0 {
+		t.Fatalf("we should not be saving breaking news articles that havent been scraped yet")
+	}
+
+	// Run the scraping process, and summarize the necessary article
+	c.ScrapeAndSummarize(testMongoUrl)
+
+	// Now, we should get one breaking news alert with this newly scraped article
+	breakingChannel = make(chan *m.SearchArticle, 1)
+	breakingChannel <- testBreakingArticle
+	close(breakingChannel)
+	breakingArticles = c.SaveBreakingArticles(breakingChannel, session)
+	if len(breakingArticles) != 1 {
+		t.Fatalf("Should have one breaking article now")
+	}
+
+	// session.DB("").DropDatabase()
 }
 
 func compareArticles(articleOne, articleTwo *m.Article) (bool, string) {

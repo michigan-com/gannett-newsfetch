@@ -67,7 +67,7 @@ type AssetUrl struct {
 	Href string `json:"href"`
 }
 
-type urls struct {
+type Urls struct {
 	LongUrl  string `json:"longUrl"`
 	ShortUrl string `json:"shortUrl"`
 }
@@ -139,7 +139,7 @@ type SearchArticle struct {
 	AssetId       int    `json:"assetId"`
 	Headline      string `json:"headline"`
 	Ssts          Ssts   `json:"ssts"`
-	Urls          urls   `json:"urls"`
+	Urls          Urls   `json:"urls"`
 	DatePublished string `json:"datePublished"`
 	SolrFields    Solr   `json:"requestedSolrFields"`
 	PromoBrief    string `json:"promoBrief"`

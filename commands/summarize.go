@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"os/exec"
 
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/michigan-com/gannett-newsfetch/config"
 	"github.com/michigan-com/gannett-newsfetch/lib"
+	m "github.com/michigan-com/gannett-newsfetch/model"
 )
 
 type SummaryResponse struct {
@@ -53,4 +57,33 @@ func ProcessSummaries(toSummarize []interface{}, mongoUri string) (*SummaryRespo
 	fmt.Println(summResp)
 
 	return summResp, nil
+}
+
+/*
+	We should summarize the article under two scenarios:
+
+		1) This article does not yet exist in the database
+		2) This article exists in the database, but the timestamp has been updated
+
+	Does a lookup based on Article.ArticleId
+*/
+func shouldSummarizeArticle(article *m.SearchArticle, session *mgo.Session) bool {
+	// Don't summarize if it's a blacklisted article
+	if m.IsBlacklisted(article.Urls.LongUrl) {
+		return false
+	}
+
+	var storedArticle *m.Article = &m.Article{}
+	collection := session.DB("").C("Article")
+	err := collection.Find(bson.M{"article_id": article.AssetId}).One(storedArticle)
+	datePublished := lib.GannettDateStringToDate(article.DatePublished)
+	if err == mgo.ErrNotFound {
+		return true
+	} else if !lib.SameTime(datePublished, storedArticle.Created_at) {
+		return true
+	} else if len(storedArticle.Summary) == 0 {
+		return true
+	}
+	return false
+
 }

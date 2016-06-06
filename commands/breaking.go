@@ -62,7 +62,7 @@ func FetchBreakingNews(mongoUri string, siteCodes []string, gnapiDomain string) 
 		close(breakingChannel)
 		log.Info("...Done fetching articles")
 
-		SaveArticles(breakingChannel, session)
+		SaveBreakingArticles(breakingChannel, session)
 
 		if gnapiDomain != "" {
 			gnapiUrl := fmt.Sprintf("%s/%s/", gnapiDomain, "breaking-news")
@@ -82,30 +82,37 @@ func FetchBreakingNews(mongoUri string, siteCodes []string, gnapiDomain string) 
 	}
 }
 
-func SaveArticles(breakingChannel chan *m.SearchArticle, session *mgo.Session) {
+func SaveBreakingArticles(breakingChannel chan *m.SearchArticle, session *mgo.Session) []*m.BreakingNewsArticle {
 	log.Info("Collecting breaking articles to save...")
 	breakingNewsSnapshot := m.BreakingNewsSnapshot{}
 	breakingArticles := make([]*m.BreakingNewsArticle, 0, 100)
 	toScrape := make([]interface{}, 0, 100)
-	for article := range breakingChannel {
-		articleId := lib.GetArticleId(article.Urls.LongUrl)
+	articleCol := session.DB("").C("Article")
+	for breaking := range breakingChannel {
+		articleId := lib.GetArticleId(breaking.Urls.LongUrl)
 		if articleId == -1 {
-			log.Warningf(`Failed to get id for url %s`, article.Urls.LongUrl)
+			log.Warningf(`Failed to get id for url %s`, breaking.Urls.LongUrl)
 			continue
 		}
 
-		breakingArticle := &m.BreakingNewsArticle{
-			ArticleId:   articleId,
-			Headline:    article.Headline,
-			Subheadline: article.PromoBrief,
-		}
-
-		breakingArticles = append(breakingArticles, breakingArticle)
-
-		if shouldSummarizeArticle(article, session) {
-			articleIdQuery := bson.M{"article_id": article.AssetId}
+		// Determine if the breaking article still needs to be scraped. If so,
+		// wait until we find the article before sending out the breaking news alert
+		storedArticle := &m.Article{}
+		err := articleCol.Find(bson.M{"article_id": articleId}).One(storedArticle)
+		if err == mgo.ErrNotFound {
+			log.Infof("should summarize %d", articleId)
+			articleIdQuery := bson.M{"article_id": articleId}
 			toScrape = append(toScrape, articleIdQuery)
 			toScrape = append(toScrape, articleIdQuery)
+		} else {
+			// only add a breaking news article if we've summarized and scraped it
+			breakingArticle := &m.BreakingNewsArticle{
+				ArticleId:   articleId,
+				Headline:    breaking.Headline,
+				Subheadline: breaking.PromoBrief,
+			}
+
+			breakingArticles = append(breakingArticles, breakingArticle)
 		}
 	}
 
@@ -130,12 +137,13 @@ func SaveArticles(breakingChannel chan *m.SearchArticle, session *mgo.Session) {
 				Err: %v
 
 		`, err)
-		return
+		return breakingArticles
 	}
 
 	RemoveOldBreakingSnapshot(breakingCol)
 
 	log.Infof("...Done saving breaking articles, count: %d", len(breakingArticles))
+	return breakingArticles
 }
 
 func RemoveOldBreakingSnapshot(col *mgo.Collection) {
