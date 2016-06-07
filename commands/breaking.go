@@ -106,11 +106,12 @@ func SaveBreakingArticles(breakingChannel chan *m.SearchArticle, session *mgo.Se
 		} else {
 			// only add a breaking news article if we've summarized and scraped it
 			breakingArticle := &m.BreakingNewsArticle{
-				ArticleId:   articleId,
-				Headline:    breaking.Headline,
-				Subheadline: breaking.PromoBrief,
+				ArticleId:   storedArticle.ArticleId,
+				Headline:    storedArticle.Headline,
+				Subheadline: storedArticle.Subheadline,
+				Photo:       storedArticle.Photo,
+				Video:       storedArticle.Video,
 			}
-
 			breakingArticles = append(breakingArticles, breakingArticle)
 		}
 	}
