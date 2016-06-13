@@ -1,10 +1,23 @@
 package gannettApi
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/michigan-com/gannett-newsfetch/config"
+)
 
 type ArticleIdTestCase struct {
 	Url string
 	Id  int
+}
+
+func getApiKey(t *testing.T) string {
+	apiConfig, _ := config.GetApiConfig()
+	if apiConfig.GannettAssetApiKey == "" {
+		t.Fatalf("Gannett Asset API key is required")
+	}
+
+	return apiConfig.GannettAssetApiKey
 }
 
 func TestArticleId(t *testing.T) {
@@ -33,7 +46,7 @@ func TestArticleScrapingNoPhotoOrVideo(t *testing.T) {
 	}
 
 	for _, articleId := range articleIds {
-		assetArticleContent := GetAssetArticleContent(articleId)
+		assetArticleContent := GetAssetArticleContent(articleId, getApiKey(t))
 
 		if assetArticleContent.Assets.Photo != nil {
 			t.Fatalf("Article %d should have Photo == nil", articleId)
@@ -51,7 +64,7 @@ func TestArticleScrapingPhotoNoVideo(t *testing.T) {
 	}
 
 	for _, articleId := range articleIds {
-		assetArticleContent := GetAssetArticleContent(articleId)
+		assetArticleContent := GetAssetArticleContent(articleId, getApiKey(t))
 
 		if assetArticleContent.Assets.Photo == nil {
 			t.Fatalf("Article %d should have a photo", articleId)
@@ -65,7 +78,7 @@ func TestArticleScrapingPhotoNoVideo(t *testing.T) {
 
 func TestArticleScarpingPhotoAndVideo(t *testing.T) {
 	articleId := 84913242
-	assetArticleContent := GetAssetArticleContent(articleId)
+	assetArticleContent := GetAssetArticleContent(articleId, getApiKey(t))
 
 	if assetArticleContent.Assets.Photo == nil {
 		t.Fatalf("Article %d should have a photo", articleId)

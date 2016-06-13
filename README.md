@@ -1,6 +1,6 @@
 # Gannett Newsfetch
 
-Cache news articles from Gannett APIs and cache them in a Mongo store for easy serving.
+Fetch news articles from Gannett APIs and cache them in a Mongo store for easy serving.
 
 ## Setup
 
@@ -24,10 +24,14 @@ Cache news articles from Gannett APIs and cache them in a Mongo store for easy s
 
 ## Environment variables
 
+See [.env.sample](https://github.com/michigan-com/gannett-newsfetch/blob/master/.env.sample) for examples
+
 * `MONGO_URI` - DB uri for mongo store
 * `SITE_CODES` - a comma-separated list of Gannett Site codes
-* `GANNETT_API_KEY` - API key for Gannett API
+* `GANNETT_SEARCH_API_KEY` - API key for Gannett Search API
+* `GANNETT_ASSET_API_KEY` - API key for Gannett Asset API
 * `SUMMARY_V_ENV` - absolute path to the virutal environment for summarization
+* `GNAPI_DOMAIN` - Domain to update when snapshots are saved
 
 
 ## Debugging
@@ -39,8 +43,35 @@ Set `DEBUG` to a comma-separated list of these flags to enable additional behavi
 
 ## Commands
 ### Articles
-Fetch gannett news articles for the current day and summarizes
+Fetch gannett news articles for the current day
+Env variables used: `MONGO_URI`, `SITE_CODES`, `GANNETT_SEARCH_API_KEY`
 ```
 $ ./gannett-newsfetch articles
 ```
 
+### Scrape And Summarize
+Scrape and summarize articles identified for scraping in `./gannett-newsfetch articles` command
+```
+$ ./gannett-newsfetch scrape-and-summarize
+```
+
+To run indeterminately, add the `-l` flag, indicating the number of seconds to sleep between every loop
+```
+$ ./gannett-newsfetch scrape-and-summarize -l 5
+```
+
+### Breaking News
+Get any breaking news alerts from the Gannett API
+```
+$ ./gannett-newsfetch breaking-news
+```
+
+Similar to the scrape and summarize command, add the `-l` flag to loop
+```
+$ ./gannett-newsfetch breaking-news -l 5
+```
+
+## Testing
+```
+$ go test ./...
+```

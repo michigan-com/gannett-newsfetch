@@ -11,7 +11,7 @@ import (
 var GannettApiSearchRoot = "http://api.gannett-cdn.com/prod/Search/v4/assets/proxy"
 
 // Use for getting the article content
-var GannettApiPresentationRoot = "http://presentation-api.production.gannettdigital.com/v4/assets"
+var GannettApiPresentationRoot = "http://api.gannett-cdn.com/presentation/v4/assets"
 
 /*
 	Get default query param values
@@ -26,7 +26,7 @@ func GetDefaultSearchValues(siteCode string) url.Values {
 	defaultValues.Set("apiKey", "newsfetch")
 	defaultValues.Set("format", "json")
 	defaultValues.Set("rows", "100")
-	defaultValues.Set("api_key", apiConfig.GannettApiKey)
+	defaultValues.Set("api_key", apiConfig.GannettSearchApiKey)
 
 	return defaultValues
 }

@@ -30,23 +30,23 @@ func getArticleId(url string) int {
 	return i
 }
 
-func getAssetUrl(assetId int) string {
-	return fmt.Sprintf("%s/%d?consumer=newsfetch&transform=full", GannettApiPresentationRoot, assetId)
+func getAssetUrl(assetId int, assetApiKey string) string {
+	return fmt.Sprintf("%s/%d?consumer=newsfetch&transform=full&api_key=%s", GannettApiPresentationRoot, assetId, assetApiKey)
 }
 
-func GetAssetArticleContent(articleId int) *m.AssetArticleContent {
+func GetAssetArticleContent(articleId int, assetApiKey string) *m.AssetArticleContent {
 	assetArticle := &m.AssetArticle{}
 
-	GetAsset(articleId, assetArticle)
+	GetAsset(articleId, assetApiKey, assetArticle)
 
 	assetArticleContent := &m.AssetArticleContent{
 		Article: assetArticle,
-		Assets:  GetArticleAssets(assetArticle.Links.Assets),
+		Assets:  GetArticleAssets(assetArticle.Links.Assets, assetApiKey),
 	}
 
 	if assetArticle.Links.Photo != nil {
 		assetPhoto := &m.AssetPhoto{}
-		err := GetAsset(assetArticle.Links.Photo.Id, assetPhoto)
+		err := GetAsset(assetArticle.Links.Photo.Id, assetApiKey, assetPhoto)
 		if err == nil {
 			assetArticleContent.Assets.Photo = assetPhoto
 		}
@@ -56,7 +56,7 @@ func GetAssetArticleContent(articleId int) *m.AssetArticleContent {
 }
 
 /** Get Photos, videos, and (TODO) galleries stored as IDs in an article's metadata */
-func GetArticleAssets(assets []*m.GannettApiAsset) *m.ArticleAssets {
+func GetArticleAssets(assets []*m.GannettApiAsset, assetApiKey string) *m.ArticleAssets {
 	articleAssets := &m.ArticleAssets{}
 	var assetWait sync.WaitGroup
 
@@ -68,7 +68,7 @@ func GetArticleAssets(assets []*m.GannettApiAsset) *m.ArticleAssets {
 
 			if asset.Type == "video" {
 				assetVideo := &m.AssetVideo{}
-				err := GetAsset(asset.Id, assetVideo)
+				err := GetAsset(asset.Id, assetApiKey, assetVideo)
 				if err == nil {
 					articleAssets.Video = assetVideo
 				}
@@ -80,8 +80,8 @@ func GetArticleAssets(assets []*m.GannettApiAsset) *m.ArticleAssets {
 	return articleAssets
 }
 
-func GetAsset(assetId int, assetResp m.AssetResp) error {
-	url := getAssetUrl(assetId)
+func GetAsset(assetId int, apiKey string, assetResp m.AssetResp) error {
+	url := getAssetUrl(assetId, apiKey)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Warning(`

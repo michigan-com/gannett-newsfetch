@@ -21,10 +21,14 @@ var cleanupCommand = &cobra.Command{
 
 func scrapeAndSummarizeCmd(command *cobra.Command, args []string) {
 	var envConfig, _ = config.GetEnv()
-	ScrapeAndSummarize(envConfig.MongoUri)
+	if envConfig.GannettAssetApiKey == "" {
+		log.Warning("Gannett API Key needs to be set (env.gannett_asset_api_key)")
+	}
+
+	ScrapeAndSummarize(envConfig.MongoUri, envConfig.GannettAssetApiKey)
 }
 
-func ScrapeAndSummarize(mongoUri string) {
+func ScrapeAndSummarize(mongoUri, assetApiKey string) {
 	var articleWait sync.WaitGroup
 	if mongoUri == "" {
 		log.Warning("No mongo URI specified, this command is basically useless")
@@ -52,7 +56,7 @@ func ScrapeAndSummarize(mongoUri string) {
 				articleId := articleIdObj["article_id"]
 				go func(articleId int) {
 					defer articleWait.Done()
-					assetArticleContent := api.GetAssetArticleContent(articleId)
+					assetArticleContent := api.GetAssetArticleContent(articleId, assetApiKey)
 
 					mongoArticle := api.FormatAssetArticleForSaving(assetArticleContent)
 					mongoArticle.Save(session)

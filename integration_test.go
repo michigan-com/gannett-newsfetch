@@ -9,11 +9,20 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	c "github.com/michigan-com/gannett-newsfetch/commands"
+	"github.com/michigan-com/gannett-newsfetch/config"
 	"github.com/michigan-com/gannett-newsfetch/lib"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
 
 var testMongoUrl string = "mongodb://localhost:27017/gannett-newsfetch-test"
+
+func getAssetApiKey(t *testing.T) string {
+	apiConfig, _ := config.GetApiConfig()
+	if apiConfig.GannettAssetApiKey == "" {
+		t.Fatal("Gannett Asset API Key required")
+	}
+	return apiConfig.GannettAssetApiKey
+}
 
 func TestIntegration(t *testing.T) {
 	jsonFiles := []string{
@@ -34,7 +43,7 @@ func TestIntegration(t *testing.T) {
 		articleCol := session.DB("").C("Article")
 		toScrapeCol.Insert(bson.M{"article_id": testArticleId})
 
-		c.ScrapeAndSummarize(testMongoUrl)
+		c.ScrapeAndSummarize(testMongoUrl, getAssetApiKey(t))
 
 		count, err := toScrapeCol.Count()
 		if count != 0 {
@@ -83,7 +92,7 @@ func TestBreakingNewsIntegration(t *testing.T) {
 	}
 
 	// Run the scraping process, and summarize the necessary article
-	c.ScrapeAndSummarize(testMongoUrl)
+	c.ScrapeAndSummarize(testMongoUrl, getAssetApiKey(t))
 
 	// Now, we should get one breaking news alert with this newly scraped article
 	breakingChannel = make(chan *m.SearchArticle, 1)
