@@ -12,6 +12,8 @@ type EnvConfig struct {
 	SiteCodes     string `envconfig:"site_codes"`
 	SummaryVEnv   string `envconfig:"summary_v_env"`
 	GnapiDomain   string `envconfig:"gnapi_domain"`
+	BrvtyURL      string `envconfig:"brvty_url"`
+	BrvtyAPIKey   string `envconfig:"brvty_api_key"`
 }
 
 type ApiConfig struct {

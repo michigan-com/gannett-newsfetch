@@ -8,9 +8,11 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/michigan-com/brvty-api/brvtyclient"
 	"github.com/michigan-com/gannett-newsfetch/config"
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 	"github.com/michigan-com/gannett-newsfetch/lib"
+	m "github.com/michigan-com/gannett-newsfetch/model"
 )
 
 var cleanupCommand = &cobra.Command{
@@ -20,49 +22,50 @@ var cleanupCommand = &cobra.Command{
 }
 
 func scrapeAndSummarizeCmd(command *cobra.Command, args []string) {
-	var envConfig, _ = config.GetEnv()
-	ScrapeAndSummarize(envConfig.MongoUri)
+	var config, _ = config.GetEnv()
+	ScrapeAndSummarize(config)
 }
 
-func ScrapeAndSummarize(mongoUri string) {
+func ScrapeAndSummarize(config EnvConfig) {
 	var articleWait sync.WaitGroup
-	if mongoUri == "" {
+	if config.MongoUri == "" {
 		log.Warning("No mongo URI specified, this command is basically useless")
 		return
 	}
 
-	session := lib.DBConnect(mongoUri)
+	session := lib.DBConnect(config.MongoUri)
 	toScrape := session.DB("").C("ToScrape")
 	defer session.Close()
 
+	client := brvtyclient.New(config.BrvtyURL)
+
 	for {
 		toSummarize := make([]interface{}, 0, 100)
-		articleIdsToScrape := make([]map[string]int, 0, 100)
+		var requests []m.ScrapeRequest
 
 		log.Info("Finding articles in need of scraping...")
-		err := toScrape.Find(bson.M{}).Select(bson.M{"article_id": true, "_id": false}).All(&articleIdsToScrape)
+		err := toScrape.Find(bson.M{}).Select(bson.M{"article_id": true, "article_url": true, "_id": false}).All(&requests)
 		if err != nil {
-			log.Errorf("Error getting articles IDs from ToScrape collection: %v", err)
+			log.Errorf("Error loading ToScrape collection: %v", err)
 		}
 
-		if len(articleIdsToScrape) > 0 {
-			log.Infof("...scraping %d articles...", len(articleIdsToScrape))
-			for _, articleIdObj := range articleIdsToScrape {
+		if len(requests) > 0 {
+			log.Infof("...scraping %d articles...", len(requests))
+			for _, request := range requests {
 				articleWait.Add(1)
-				articleId := articleIdObj["article_id"]
-				go func(articleId int) {
+				go func(request m.ScrapeRequest) {
 					defer articleWait.Done()
-					assetArticleContent := api.GetAssetArticleContent(articleId)
+					assetArticleContent := api.GetAssetArticleContent(request.ArticleID)
 
 					mongoArticle := api.FormatAssetArticleForSaving(assetArticleContent)
 					mongoArticle.Save(session)
 
-					articleIdQuery := bson.M{"article_id": articleId}
+					articleIdQuery := bson.M{"article_id": request.ArticleID}
 					toSummarize = append(toSummarize, articleIdQuery)
 					toSummarize = append(toSummarize, articleIdQuery)
 
 					toScrape.Remove(articleIdQuery)
-				}(articleId)
+				}(request)
 			}
 			log.Infof("...Done scraping articles")
 			articleWait.Wait()
@@ -72,7 +75,7 @@ func ScrapeAndSummarize(mongoUri string) {
 
 		if len(toSummarize) > 0 {
 			log.Info("Summarizing articles...")
-			_, err := ProcessSummaries(toSummarize, mongoUri)
+			_, err := ProcessSummaries(toSummarize, config.MongoUri)
 			if err != nil {
 				log.Errorf("Failed to process summaries: %v", err)
 			}

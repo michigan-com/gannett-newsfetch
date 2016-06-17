@@ -33,7 +33,6 @@ func GetArticles() {
 	var articleWait sync.WaitGroup
 	var totalArticles int = 0
 	articleChannel := make(chan *m.SearchArticle, len(apiConfig.SiteCodes)*100)
-	articlesToScrape := make([]interface{}, 0, len(apiConfig.SiteCodes)*100)
 
 	if len(envConfig.SiteCodes) == 0 {
 		log.Fatal("No site codes input, please set the SITE_CODES env variable")
@@ -65,6 +64,8 @@ func GetArticles() {
 	session := lib.DBConnect(envConfig.MongoUri)
 	defer session.Close()
 
+	bulk := session.DB("").C("ToScrape").Bulk()
+
 	// Iterate over all the articles, and determine whether or not we need to
 	// summarize the articles
 	log.Info("Determining which articles need to be scraped...")
@@ -73,14 +74,13 @@ func GetArticles() {
 		if shouldSummarizeArticle(article, session) {
 			totalArticles += 1
 
-			articleIdQuery := bson.M{"article_id": article.AssetId}
-			articlesToScrape = append(articlesToScrape, articleIdQuery)
-			articlesToScrape = append(articlesToScrape, articleIdQuery)
+			bulk.Upsert(bson.M{"article_id": article.AssetId}, &m.ScrapeRequest{
+				ArticleID:  article.AssetId,
+				ArticleURL: article.Urls.LongUrl,
+			})
 		}
 	}
 
-	bulk := session.DB("").C("ToScrape").Bulk()
-	bulk.Upsert(articlesToScrape...)
 	_, err := bulk.Run()
 	if err != nil {
 		log.Errorf("Failed to store articles to be scraped: %v", err)
