@@ -44,7 +44,7 @@ func GetArticleAssets(assets []*m.GannettApiAsset) *m.ArticleAssets {
 	for _, asset := range assets {
 
 		assetWait.Add(1)
-		go func(asset *m.GannettApiAsset) {`
+		go func(asset *m.GannettApiAsset) {
 			defer assetWait.Done()
 
 			if asset.Type == "video" {
