@@ -5,39 +5,18 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/spf13/cobra"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/michigan-com/brvty-api/brvtyclient"
-	"github.com/michigan-com/gannett-newsfetch/config"
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
-	"github.com/michigan-com/gannett-newsfetch/lib"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
 
-var cleanupCommand = &cobra.Command{
-	Use:   "scrape-and-summarize",
-	Short: "Grab stories that we see in chartbeat but not the Gannett API",
-	Run:   scrapeAndSummarizeCmd,
-}
-
-func scrapeAndSummarizeCmd(command *cobra.Command, args []string) {
-	var config, _ = config.GetEnv()
-	ScrapeAndSummarize(config)
-}
-
-func ScrapeAndSummarize(config EnvConfig) {
+func ScrapeAndSummarize(session *mgo.Session, client *brvtyclient.Client, brvtyTimeout time.Duration, loopInterval time.Duration, mongoUri string, summaryVEnv string) {
 	var articleWait sync.WaitGroup
-	if config.MongoUri == "" {
-		log.Warning("No mongo URI specified, this command is basically useless")
-		return
-	}
 
-	session := lib.DBConnect(config.MongoUri)
 	toScrape := session.DB("").C("ToScrape")
-	defer session.Close()
-
-	client := brvtyclient.New(config.BrvtyURL)
 
 	for {
 		toSummarize := make([]interface{}, 0, 100)
@@ -65,17 +44,49 @@ func ScrapeAndSummarize(config EnvConfig) {
 					toSummarize = append(toSummarize, articleIdQuery)
 
 					toScrape.Remove(articleIdQuery)
+
 				}(request)
 			}
+
+			urls := pluckRequestURLs(requests)
+			var resources []*brvtyclient.Resource
+
+			var brvtyWG sync.WaitGroup
+			if client != nil {
+				brvtyWG.Add(1)
+				go func() {
+					defer brvtyWG.Done()
+
+					var err error
+					resources, err = client.Add(urls, brvtyTimeout)
+					if err != nil {
+						log.Errorf("brvty.Add failed: %v", err)
+					}
+				}()
+			}
+
 			log.Infof("...Done scraping articles")
 			articleWait.Wait()
+
+			if client != nil {
+				log.Infof("Waiting for Brvty request...")
+				brvtyWG.Wait()
+				log.Infof("Brvty request finished.")
+
+				if resources != nil {
+					log.Infof("Brvty returned %v resources:", len(resources))
+					for i, resource := range resources {
+						log.Infof("%03d) %+v", i, resource)
+					}
+				}
+			}
 		} else {
 			log.Infof("...no articles in need of scraping")
 		}
 
 		if len(toSummarize) > 0 {
 			log.Info("Summarizing articles...")
-			_, err := ProcessSummaries(toSummarize, config.MongoUri)
+			_, err := ProcessSummaries(session, toSummarize, mongoUri, summaryVEnv)
 			if err != nil {
 				log.Errorf("Failed to process summaries: %v", err)
 			}
@@ -84,12 +95,20 @@ func ScrapeAndSummarize(config EnvConfig) {
 			log.Info("No articles to summarize.")
 		}
 
-		if loop > 0 {
-			log.Infof("Sleeping for %d seconds...", loop)
-			time.Sleep(time.Duration(loop) * time.Second)
+		if loopInterval > 0 {
+			log.Infof("Sleeping for %d ms...", loopInterval/time.Millisecond)
+			time.Sleep(loopInterval)
 			log.Info("...and now I'm awake!")
 		} else {
 			break
 		}
 	}
+}
+
+func pluckRequestURLs(requests []m.ScrapeRequest) []string {
+	result := make([]string, 0, len(requests))
+	for _, request := range requests {
+		result = append(result, request.ArticleURL)
+	}
+	return result
 }

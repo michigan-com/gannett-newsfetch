@@ -6,43 +6,16 @@ import (
 	"sync"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/spf13/cobra"
-
-	"github.com/michigan-com/gannett-newsfetch/config"
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 	"github.com/michigan-com/newsfetch/lib"
 )
 
-var breakingCommand = &cobra.Command{
-	Use:   "breaking-news",
-	Short: "Check the Gannett API for breaking news",
-	Run:   breakingCmdRun,
-}
-
-func breakingCmdRun(command *cobra.Command, argv []string) {
-	apiConfig, _ := config.GetApiConfig()
-	envConfig, _ := config.GetEnv()
-
-	if envConfig.MongoUri == "" {
-		log.Print("No mongo uri specified, no articles will be saved")
-		return
-	} else if len(apiConfig.SiteCodes) == 0 {
-		log.Fatalf("No site codes input, please set the SITE_CODES env variable")
-		return
-	}
-
-	FetchBreakingNews(envConfig.MongoUri, apiConfig.SiteCodes, envConfig.GnapiDomain)
-}
-
-func FetchBreakingNews(mongoUri string, siteCodes []string, gnapiDomain string) {
-	session := lib.DBConnect(mongoUri)
-	defer session.Close()
-
+func FetchBreakingNews(session *mgo.Session, siteCodes []string, gnapiDomain string, loopInterval time.Duration, gannettAPIKey string) {
 	for {
 		var breakingWait sync.WaitGroup
 		breakingChannel := make(chan *m.SearchArticle, len(siteCodes)*100)
@@ -51,7 +24,7 @@ func FetchBreakingNews(mongoUri string, siteCodes []string, gnapiDomain string) 
 			breakingWait.Add(1)
 			go func(siteCode string) {
 				defer breakingWait.Done()
-				articles := api.GetBreakingNews(siteCode)
+				articles := api.GetBreakingNews(siteCode, gannettAPIKey)
 
 				for _, article := range articles {
 					breakingChannel <- article
@@ -72,9 +45,9 @@ func FetchBreakingNews(mongoUri string, siteCodes []string, gnapiDomain string) 
 			}
 		}
 
-		if loop > 0 {
-			log.Infof("Sleeping for %d seconds...", loop)
-			time.Sleep(time.Duration(loop) * time.Second)
+		if loopInterval > 0 {
+			log.Infof("Sleeping for %d ms...", loopInterval/time.Millisecond)
+			time.Sleep(loopInterval)
 			log.Info("...and now I'm awake!")
 		} else {
 			break
