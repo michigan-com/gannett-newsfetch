@@ -73,6 +73,11 @@ func main() {
 		Run: func(command *cobra.Command, args []string) {
 			config.LoopInterval = time.Duration(loopSec) * time.Second
 
+			if config.MongoURI == "" {
+				log.Fatalf("No mongo uri specified")
+				os.Exit(ExitCodeErrConfig)
+			}
+
 			session, err := SetupMongoSession(config.MongoURI)
 			if err != nil {
 				log.Fatalf("Failed to connect to '%s': %v", config.MongoURI, err)
