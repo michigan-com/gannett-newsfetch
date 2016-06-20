@@ -52,17 +52,17 @@ func main() {
 			}
 
 			var session *mgo.Session
-			if config.MongoUri != "" {
+			if config.MongoURI != "" {
 				var err error
-				session, err = SetupMongoSession(config.MongoUri)
+				session, err = SetupMongoSession(config.MongoURI)
 				if err != nil {
-					log.Fatalf("Failed to connect to '%s': %v", config.MongoUri, err)
+					log.Fatalf("Failed to connect to '%s': %v", config.MongoURI, err)
 					os.Exit(ExitCodeErrDependencies)
 				}
 			}
 			defer closeSessionIfNotNil(session)
 
-			commands.GetArticles(session, config.SiteCodes, config.GannettApiKey)
+			commands.GetArticles(session, config.SiteCodes, config.GannettAPIKey)
 		},
 	}
 	root.AddCommand(articlesCmd)
@@ -73,9 +73,9 @@ func main() {
 		Run: func(command *cobra.Command, args []string) {
 			config.LoopInterval = time.Duration(loopSec) * time.Second
 
-			session, err := SetupMongoSession(config.MongoUri)
+			session, err := SetupMongoSession(config.MongoURI)
 			if err != nil {
-				log.Fatalf("Failed to connect to '%s': %v", config.MongoUri, err)
+				log.Fatalf("Failed to connect to '%s': %v", config.MongoURI, err)
 				os.Exit(ExitCodeErrDependencies)
 			}
 			defer session.Close()
@@ -85,7 +85,7 @@ func main() {
 				client = brvtyclient.New(config.BrvtyURL, config.BrvtyAPIKey)
 			}
 
-			commands.ScrapeAndSummarize(session, client, config.BrvtyTimeout, config.LoopInterval, config.MongoUri, config.SummaryVEnv)
+			commands.ScrapeAndSummarize(session, client, config.BrvtyTimeout, config.LoopInterval, config.MongoURI, config.SummaryVEnv)
 		},
 	}
 	root.AddCommand(scrapeCommand)
@@ -94,7 +94,7 @@ func main() {
 		Use:   "breaking-news",
 		Short: "Check the Gannett API for breaking news",
 		Run: func(command *cobra.Command, argv []string) {
-			if config.MongoUri == "" {
+			if config.MongoURI == "" {
 				log.Fatalf("No mongo uri specified")
 				os.Exit(ExitCodeErrConfig)
 			}
@@ -104,14 +104,14 @@ func main() {
 			}
 			config.LoopInterval = time.Duration(loopSec) * time.Second
 
-			session, err := SetupMongoSession(config.MongoUri)
+			session, err := SetupMongoSession(config.MongoURI)
 			if err != nil {
-				log.Fatalf("Failed to connect to '%s': %v", config.MongoUri, err)
+				log.Fatalf("Failed to connect to '%s': %v", config.MongoURI, err)
 				os.Exit(ExitCodeErrDependencies)
 			}
 			defer session.Close()
 
-			commands.FetchBreakingNews(session, config.SiteCodes, config.GnapiDomain, config.LoopInterval, config.GannettApiKey)
+			commands.FetchBreakingNews(session, config.SiteCodes, config.GNAPIDomain, config.LoopInterval, config.GannettAPIKey)
 		},
 	}
 	root.AddCommand(breakingCommand)

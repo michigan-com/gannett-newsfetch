@@ -8,11 +8,11 @@ import (
 )
 
 type Config struct {
-	MongoUri      string `envconfig:"mongo_uri"`
-	GannettApiKey string `envconfig:"gannett_api_key"`
+	MongoURI      string `envconfig:"mongo_uri"`
+	GannettAPIKey string `envconfig:"gannett_api_key"`
 	SiteCodes     []string
 	SummaryVEnv   string `envconfig:"summary_v_env"`
-	GnapiDomain   string `envconfig:"gnapi_domain"`
+	GNAPIDomain   string `envconfig:"gnapi_domain"`
 
 	BrvtyURL     string `envconfig:"brvty_url"`
 	BrvtyAPIKey  string `envconfig:"brvty_api_key"`

@@ -15,7 +15,7 @@ import (
 )
 
 var config = newsfetch.Config{
-	MongoUri: "mongodb://localhost:27017/gannett-newsfetch-test",
+	MongoURI: "mongodb://localhost:27017/gannett-newsfetch-test",
 }
 
 func TestIntegration(t *testing.T) {
@@ -23,7 +23,7 @@ func TestIntegration(t *testing.T) {
 		"./testData/expectedArticleWithVideo.json",
 		// "./testData/expectedArticleNoPhoto.json",
 	}
-	session, err := newsfetch.SetupMongoSession(config.MongoUri)
+	session, err := newsfetch.SetupMongoSession(config.MongoURI)
 	if err != nil {
 		t.Fatalf("Error connecting to Mongo: %v", err)
 	}
@@ -40,7 +40,7 @@ func TestIntegration(t *testing.T) {
 		articleCol := session.DB("").C("Article")
 		toScrapeCol.Insert(bson.M{"article_id": testArticleId})
 
-		c.ScrapeAndSummarize(session, nil, 0, 0, config.MongoUri, "")
+		c.ScrapeAndSummarize(session, nil, 0, 0, config.MongoURI, "")
 
 		count, err := toScrapeCol.Count()
 		if count != 0 {
@@ -65,7 +65,7 @@ func TestIntegration(t *testing.T) {
 }
 
 func TestBreakingNewsIntegration(t *testing.T) {
-	session, err := newsfetch.SetupMongoSession(config.MongoUri)
+	session, err := newsfetch.SetupMongoSession(config.MongoURI)
 	if err != nil {
 		t.Fatalf("Error connecting to Mongo: %v", err)
 	}
@@ -91,7 +91,7 @@ func TestBreakingNewsIntegration(t *testing.T) {
 	}
 
 	// Run the scraping process, and summarize the necessary article
-	c.ScrapeAndSummarize(session, nil, 0, 0, config.MongoUri, "")
+	c.ScrapeAndSummarize(session, nil, 0, 0, config.MongoURI, "")
 
 	// Now, we should get one breaking news alert with this newly scraped article
 	breakingChannel = make(chan *m.SearchArticle, 1)
