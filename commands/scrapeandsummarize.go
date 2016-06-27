@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -9,11 +11,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/michigan-com/brvty-api/brvtyclient"
+	"github.com/michigan-com/brvty-api/mongoqueue"
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
 
-func ScrapeAndSummarize(session *mgo.Session, client *brvtyclient.Client, brvtyTimeout time.Duration, loopInterval time.Duration, mongoUri string, summaryVEnv string) {
+func ScrapeAndSummarize(session *mgo.Session, client *brvtyclient.Client, queue *mongoqueue.Queue, brvtyTimeout time.Duration, loopInterval time.Duration, mongoUri string, summaryVEnv string) {
 	var articleWait sync.WaitGroup
 
 	toScrape := session.DB("").C("ToScrape")
@@ -36,6 +39,19 @@ func ScrapeAndSummarize(session *mgo.Session, client *brvtyclient.Client, brvtyT
 					defer articleWait.Done()
 					assetArticleContent := api.GetAssetArticleContent(request.ArticleID)
 
+					err := queue.Add(mongoqueue.Request{
+						Name: fmt.Sprintf("brvty-%v", request.ArticleURL),
+						Op:   OpBrvty,
+						Args: map[string]interface{}{
+							ParamArticleID: request.ArticleID,
+							ParamURL:       request.ArticleURL,
+						},
+					})
+					if err != nil {
+						log.Errorf("Failed to enqueue brvty job for article at %v: %v", request.ArticleURL, err)
+						os.Exit(22)
+					}
+
 					mongoArticle := api.FormatAssetArticleForSaving(assetArticleContent)
 					mongoArticle.Save(session)
 
@@ -44,7 +60,6 @@ func ScrapeAndSummarize(session *mgo.Session, client *brvtyclient.Client, brvtyT
 					toSummarize = append(toSummarize, articleIdQuery)
 
 					toScrape.Remove(articleIdQuery)
-
 				}(request)
 			}
 

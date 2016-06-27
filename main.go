@@ -11,6 +11,7 @@ import (
 	"gopkg.in/mgo.v2"
 
 	"github.com/michigan-com/brvty-api/brvtyclient"
+	"github.com/michigan-com/brvty-api/mongoqueue"
 	"github.com/michigan-com/gannett-newsfetch/commands"
 )
 
@@ -90,7 +91,13 @@ func main() {
 				client = brvtyclient.New(config.BrvtyURL, config.BrvtyAPIKey)
 			}
 
-			commands.ScrapeAndSummarize(session, client, config.BrvtyTimeout, config.LoopInterval, config.MongoURI, config.SummaryVEnv)
+			queue, err := newQueue(session)
+			if err != nil {
+				log.Fatalf("Failed to initialize queue: %v", err)
+				os.Exit(ExitCodeErrDependencies)
+			}
+
+			commands.ScrapeAndSummarize(session, client, queue, config.BrvtyTimeout, config.LoopInterval, config.MongoURI, config.SummaryVEnv)
 		},
 	}
 	root.AddCommand(scrapeCommand)
@@ -121,9 +128,56 @@ func main() {
 	}
 	root.AddCommand(breakingCommand)
 
+	queueCommand := &cobra.Command{
+		Use:   "run-jobs",
+		Short: "Run pending queued jobs",
+		Run: func(command *cobra.Command, argv []string) {
+			if config.MongoURI == "" {
+				log.Fatalf("No mongo uri specified")
+				os.Exit(ExitCodeErrConfig)
+			}
+
+			if config.BrvtyURL == "" {
+				log.Fatalf("No Brvty URL specified")
+				os.Exit(ExitCodeErrConfig)
+			}
+
+			session, err := SetupMongoSession(config.MongoURI)
+			if err != nil {
+				log.Fatalf("Failed to connect to '%s': %v", config.MongoURI, err)
+				os.Exit(ExitCodeErrDependencies)
+			}
+			defer session.Close()
+
+			client := brvtyclient.New(config.BrvtyURL, config.BrvtyAPIKey)
+
+			queue, err := newQueue(session)
+			if err != nil {
+				log.Fatalf("Failed to initialize queue: %v", err)
+				os.Exit(ExitCodeErrDependencies)
+			}
+
+			commands.RunQueuedJobs(session, client, queue, config.BrvtyTimeout)
+		},
+	}
+	root.AddCommand(queueCommand)
+
 	root.PersistentFlags().IntVarP(&loopSec, "loop", "l", -1, "Time in seconds to sleep before looping and hitting the apis again")
 
 	log.Infof(`Running Gannett Newsfetch for Site Codes: %v`, config.SiteCodes)
 
 	root.Execute()
+}
+
+func newQueue(session *mgo.Session) (*mongoqueue.Queue, error) {
+	queue := mongoqueue.New(session.DB("").C("queue"), mongoqueue.Params{
+		Logger: log.New(),
+	})
+
+	err := queue.Migrate()
+	if err != nil {
+		return nil, err
+	}
+
+	return queue, err
 }
