@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	MongoURI           string `envconfig:"mongo_uri"`
-	GannettAPIKey      string `envconfig:"gannett_api_key"`
+	GannettAPIKey      string `envconfig:"gannett_search_api_key"`
 	GannettAssetAPIKey string `envconfig:"gannett_asset_api_key"`
 	SiteCodes          []string
 	SummaryVEnv        string `envconfig:"summary_v_env"`
