@@ -39,17 +39,19 @@ func ScrapeAndSummarize(session *mgo.Session, client *brvtyclient.Client, queue 
 					defer articleWait.Done()
 					assetArticleContent := api.GetAssetArticleContent(request.ArticleID)
 
-					err := queue.Add(mongoqueue.Request{
-						Name: fmt.Sprintf("brvty-%v", request.ArticleURL),
-						Op:   OpBrvty,
-						Args: map[string]interface{}{
-							ParamArticleID: request.ArticleID,
-							ParamURL:       request.ArticleURL,
-						},
-					})
-					if err != nil {
-						log.Errorf("Failed to enqueue brvty job for article at %v: %v", request.ArticleURL, err)
-						os.Exit(22)
+					if queue != nil {
+						err := queue.Add(mongoqueue.Request{
+							Name: fmt.Sprintf("brvty-%v", request.ArticleURL),
+							Op:   OpBrvty,
+							Args: map[string]interface{}{
+								ParamArticleID: request.ArticleID,
+								ParamURL:       request.ArticleURL,
+							},
+						})
+						if err != nil {
+							log.Errorf("Failed to enqueue brvty job for article at %v: %v", request.ArticleURL, err)
+							os.Exit(22)
+						}
 					}
 
 					mongoArticle := api.FormatAssetArticleForSaving(assetArticleContent)

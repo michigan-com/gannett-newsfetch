@@ -40,7 +40,7 @@ func TestIntegration(t *testing.T) {
 		articleCol := session.DB("").C("Article")
 		toScrapeCol.Insert(bson.M{"article_id": testArticleId})
 
-		c.ScrapeAndSummarize(session, nil, 0, 0, config.MongoURI, "")
+		c.ScrapeAndSummarize(session, nil, nil, 0, 0, config.MongoURI, "")
 
 		count, err := toScrapeCol.Count()
 		if count != 0 {
@@ -91,7 +91,7 @@ func TestBreakingNewsIntegration(t *testing.T) {
 	}
 
 	// Run the scraping process, and summarize the necessary article
-	c.ScrapeAndSummarize(session, nil, 0, 0, config.MongoURI, "")
+	c.ScrapeAndSummarize(session, nil, nil, 0, 0, config.MongoURI, "")
 
 	// Now, we should get one breaking news alert with this newly scraped article
 	breakingChannel = make(chan *m.SearchArticle, 1)
