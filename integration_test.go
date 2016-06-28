@@ -8,20 +8,22 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
+	newsfetch "github.com/michigan-com/gannett-newsfetch"
 	c "github.com/michigan-com/gannett-newsfetch/commands"
-	"github.com/michigan-com/gannett-newsfetch/config"
 	"github.com/michigan-com/gannett-newsfetch/lib"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
 
-var testMongoUrl string = "mongodb://localhost:27017/gannett-newsfetch-test"
+var config newsfetch.Config
 
-func getAssetApiKey(t *testing.T) string {
-	apiConfig, _ := config.GetApiConfig()
-	if apiConfig.GannettAssetApiKey == "" {
-		t.Fatal("Gannett Asset API Key required")
+func init() {
+	var err error
+	config, err = newsfetch.ParseConfig()
+	if err != nil {
+		panic(err)
 	}
-	return apiConfig.GannettAssetApiKey
+
+	config.MongoURI = "mongodb://localhost:27017/gannett-newsfetch-test"
 }
 
 func TestIntegration(t *testing.T) {
@@ -29,7 +31,10 @@ func TestIntegration(t *testing.T) {
 		"./testData/expectedArticleWithVideo.json",
 		// "./testData/expectedArticleNoPhoto.json",
 	}
-	session := lib.DBConnect(testMongoUrl)
+	session, err := newsfetch.SetupMongoSession(config.MongoURI)
+	if err != nil {
+		t.Fatalf("Error connecting to Mongo: %v", err)
+	}
 	defer session.Close()
 
 	for _, jsonFile := range jsonFiles {
@@ -43,7 +48,7 @@ func TestIntegration(t *testing.T) {
 		articleCol := session.DB("").C("Article")
 		toScrapeCol.Insert(bson.M{"article_id": testArticleId})
 
-		c.ScrapeAndSummarize(testMongoUrl, getAssetApiKey(t))
+		c.ScrapeAndSummarize(session, nil, nil, 0, 0, config.MongoURI, config.SummaryVEnv, config.GannettAssetAPIKey)
 
 		count, err := toScrapeCol.Count()
 		if count != 0 {
@@ -68,8 +73,10 @@ func TestIntegration(t *testing.T) {
 }
 
 func TestBreakingNewsIntegration(t *testing.T) {
-
-	session := lib.DBConnect(testMongoUrl)
+	session, err := newsfetch.SetupMongoSession(config.MongoURI)
+	if err != nil {
+		t.Fatalf("Error connecting to Mongo: %v", err)
+	}
 	defer session.Close()
 
 	testBreakingNewsUrl := "http://www.freep.com/story/news/local/michigan/2016/06/06/insanity-defense-kalamazoo-shootings/85516404/"
@@ -92,7 +99,7 @@ func TestBreakingNewsIntegration(t *testing.T) {
 	}
 
 	// Run the scraping process, and summarize the necessary article
-	c.ScrapeAndSummarize(testMongoUrl, getAssetApiKey(t))
+	c.ScrapeAndSummarize(session, nil, nil, 0, 0, config.MongoURI, config.SummaryVEnv, config.GannettAssetAPIKey)
 
 	// Now, we should get one breaking news alert with this newly scraped article
 	breakingChannel = make(chan *m.SearchArticle, 1)

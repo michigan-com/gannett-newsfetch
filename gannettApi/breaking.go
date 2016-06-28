@@ -10,9 +10,9 @@ import (
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
 
-func GetBreakingNews(siteCode string) []*m.SearchArticle {
+func GetBreakingNews(siteCode string, gannettSearchAPIKey string) []*m.SearchArticle {
 	breakingResponse := &m.ArticlesResponse{}
-	queryParams := GetDefaultSearchValues(siteCode)
+	queryParams := GetDefaultSearchValues(siteCode, gannettSearchAPIKey)
 	queryParams.Add("fl", "sitecode")
 	queryParams.Add("fl", "expiration")
 	queryParams.Add("fq", "expiration:[NOW TO *]")

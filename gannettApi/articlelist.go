@@ -17,23 +17,23 @@ import (
 /*
 	Get articles within an entire day
 */
-func GetArticlesByDay(siteCode string, date time.Time) []*m.SearchArticle {
+func GetArticlesByDay(siteCode string, date time.Time, gannettSearchAPIKey string) []*m.SearchArticle {
 	year, monthObj, day := date.Date()
 	month := int(monthObj)
 
 	startDate := FormatAsDateString(year, month, day, 0, 0, 0)
 	endDate := FormatAsDateString(year, month, day, 23, 59, 59)
 
-	return getArticles(siteCode, startDate, endDate)
+	return getArticles(siteCode, startDate, endDate, gannettSearchAPIKey)
 }
 
 /*
 	Get articles within a date range
 	Date strings should be formatted via gannettApi.FormatAsDateString
 */
-func getArticles(siteCode string, startDate string, endDate string) []*m.SearchArticle {
+func getArticles(siteCode string, startDate string, endDate string, gannettSearchAPIKey string) []*m.SearchArticle {
 	var articleResponse *m.ArticlesResponse = &m.ArticlesResponse{}
-	var queryParams = GetDefaultSearchValues(siteCode)
+	var queryParams = GetDefaultSearchValues(siteCode, gannettSearchAPIKey)
 	queryParams.Add("fq", fmt.Sprintf("lastpublished:[%s TO %s]", startDate, endDate))
 	queryParams.Add("fq", "assettypename:text")
 	queryParams.Add("fl", "initialpublished")

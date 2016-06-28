@@ -4,31 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
-	"strconv"
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
 
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
-
-func getArticleId(url string) int {
-	// Given an article url, get the ID from it
-	r := regexp.MustCompile("/([0-9]+)/{0,1}$")
-	match := r.FindStringSubmatch(url)
-
-	if len(match) <= 1 {
-		return -1
-	}
-
-	i, err := strconv.Atoi(match[1])
-	if err != nil {
-		return -1
-	}
-
-	return i
-}
 
 func getAssetUrl(assetId int, assetApiKey string) string {
 	return fmt.Sprintf("%s/%d?consumer=newsfetch&transform=full&api_key=%s", GannettApiPresentationRoot, assetId, assetApiKey)

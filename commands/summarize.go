@@ -10,7 +10,6 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	"github.com/michigan-com/gannett-newsfetch/config"
 	"github.com/michigan-com/gannett-newsfetch/lib"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
@@ -23,10 +22,8 @@ type SummaryResponse struct {
 /*
 	Run a python process to summarize all articles in the ToSummarize collection
 */
-func ProcessSummaries(toSummarize []interface{}, mongoUri string) (*SummaryResponse, error) {
+func ProcessSummaries(session *mgo.Session, toSummarize []interface{}, mongoUri string, summaryVEnv string) (*SummaryResponse, error) {
 	summResp := &SummaryResponse{}
-	session := lib.DBConnect(mongoUri)
-	defer session.Close()
 
 	bulk := session.DB("").C("ToSummarize").Bulk()
 	bulk.Upsert(toSummarize...)
@@ -35,14 +32,12 @@ func ProcessSummaries(toSummarize []interface{}, mongoUri string) (*SummaryRespo
 		return summResp, err
 	}
 
-	envConfig, _ := config.GetEnv()
-
-	if envConfig.SummaryVEnv == "" {
-		return nil, fmt.Errorf("Missing SUMMARY_VENV environtment variable, skipping summarizer")
+	if summaryVEnv == "" {
+		return nil, fmt.Errorf("Missing SUMMARY_VENV environment variable, skipping summarizer")
 	}
 
-	cmd := fmt.Sprintf("%s/bin/python", envConfig.SummaryVEnv)
-	pyScript := fmt.Sprintf("%s/bin/summary.py", envConfig.SummaryVEnv)
+	cmd := fmt.Sprintf("%s/bin/python", summaryVEnv)
+	pyScript := fmt.Sprintf("%s/bin/summary.py", summaryVEnv)
 
 	log.Infof("Executing command: %s %s %s", cmd, pyScript, mongoUri)
 

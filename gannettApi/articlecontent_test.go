@@ -1,9 +1,8 @@
 package gannettApi
 
 import (
+	"os"
 	"testing"
-
-	"github.com/michigan-com/gannett-newsfetch/config"
 )
 
 type ArticleIdTestCase struct {
@@ -12,12 +11,11 @@ type ArticleIdTestCase struct {
 }
 
 func getApiKey(t *testing.T) string {
-	apiConfig, _ := config.GetApiConfig()
-	if apiConfig.GannettAssetApiKey == "" {
-		t.Fatalf("Gannett Asset API key is required")
+	key := os.Getenv("GANNETT_ASSET_API_KEY")
+	if key == "" {
+		t.Fatalf("GANNETT_ASSET_API_KEY is required")
 	}
-
-	return apiConfig.GannettAssetApiKey
+	return key
 }
 
 func TestArticleId(t *testing.T) {
