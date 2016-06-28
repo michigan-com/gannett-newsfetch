@@ -39,7 +39,7 @@ func ScrapeAndSummarize(session *mgo.Session, client *brvtyclient.Client, queue 
 					defer articleWait.Done()
 					assetArticleContent := api.GetAssetArticleContent(request.ArticleID, assetApiKey)
 
-					if queue != nil {
+					if queue != nil && request.ArticleURL != "" {
 						err := queue.Add(mongoqueue.Request{
 							Name: fmt.Sprintf("brvty-%v", request.ArticleURL),
 							Op:   OpBrvty,
