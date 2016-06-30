@@ -92,6 +92,9 @@ func (a *Article) Save(session *mgo.Session) {
 			"body":            a.Body,
 			"storyHighlights": a.StoryHighlights,
 		},
+		"$setOnInsert": bson.M{
+			"inserted_at": time.Now(),
+		},
 	}
 
 	_, err := articleCol.Upsert(bson.M{"article_id": a.ArticleId}, update)
