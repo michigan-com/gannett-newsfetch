@@ -1,7 +1,8 @@
 package commands
 
 const (
-	OpBrvty        = "brvty"
-	ParamArticleID = "aid"
-	ParamURL       = "url"
+	OpBrvty         = "brvty"
+	OpBrvtyPostback = "brvty-postback"
+	ParamArticleID  = "aid"
+	ParamURL        = "url"
 )

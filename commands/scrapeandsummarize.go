@@ -65,35 +65,25 @@ func ScrapeAndSummarize(session *mgo.Session, client *brvtyclient.Client, queue 
 				}(request)
 			}
 
-			urls := pluckRequestURLs(requests)
-			var resources []*brvtyclient.Resource
-
-			var brvtyWG sync.WaitGroup
-			if client != nil {
-				brvtyWG.Add(1)
-				go func() {
-					defer brvtyWG.Done()
-
-					var err error
-					resources, err = client.Add(urls, brvtyTimeout)
-					if err != nil {
-						log.Errorf("brvty.Add failed: %v", err)
-					}
-				}()
-			}
-
 			log.Infof("...Done scraping articles")
 			articleWait.Wait()
 
-			if client != nil {
-				log.Infof("Waiting for Brvty request...")
-				brvtyWG.Wait()
-				log.Infof("Brvty request finished.")
-
-				if resources != nil {
-					log.Infof("Brvty returned %v resources:", len(resources))
-					for i, resource := range resources {
-						log.Infof("%03d) %+v", i, resource)
+			// enqueue postback jobs to deliver newsfetch bodies and summaries to Brvty (for analysis and introspection)
+			if queue != nil {
+				for _, request := range requests {
+					if request.ArticleURL != "" {
+						err := queue.Add(mongoqueue.Request{
+							Name: fmt.Sprintf("brvty-postback-%v", request.ArticleURL),
+							Op:   OpBrvtyPostback,
+							Args: map[string]interface{}{
+								ParamArticleID: request.ArticleID,
+								ParamURL:       request.ArticleURL,
+							},
+						})
+						if err != nil {
+							log.Errorf("Failed to enqueue brvty postback job for article at %v: %v", request.ArticleURL, err)
+							os.Exit(22)
+						}
 					}
 				}
 			}
