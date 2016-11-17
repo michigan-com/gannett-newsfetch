@@ -25,7 +25,7 @@ func FormatAssetArticleForSaving(assetArticleContent *m.AssetArticleContent) *m.
 	mongoArticle.Section = article.Ssts.Section
 	mongoArticle.Subsection = article.Ssts.SubSection
 	mongoArticle.Sections = getAllSections(&article.Ssts)
-	mongoArticle.Source, _ = lib.GetHost(article.Links.LongUrl.Href)
+	mongoArticle.Domain, _ = lib.GetHost(article.Links.LongUrl.Href)
 	mongoArticle.Timestamp = lib.GannettDateStringToDate(article.InitialPublishDate)
 	mongoArticle.Url = article.Links.LongUrl.Href
 	mongoArticle.ShortUrl = article.Links.ShortUrl.Href

@@ -40,7 +40,7 @@ type Article struct {
 	Section         string      `bson:"section" json:"section"`
 	Subsection      string      `bson:"subsection" json:"subsection"`
 	Sections        []string    `bson:"sections" json"sections"`
-	Source          string      `bson:"source" json:"source"`
+	Domain          string      `bson:"domain" json:"domain"`
 	Created_at      time.Time   `bson:"created_at" json:"created_at"`
 	Updated_at      time.Time   `bson:"updated_at" json:"updated_at"`
 	Timestamp       time.Time   `bson:"timestamp" json:"timestamp"`
@@ -49,8 +49,8 @@ type Article struct {
 	Photo           *Photo      `bson:"photo" json:"photo"`
 	Video           *AssetVideo `bson:"video" json:"video"`
 	Body            string      `bson:"body" json:"body"`
-	Summary         []string    `bson"summary" json:"summary"`
-	StoryHighlights []string    `bson"storyHighlights" json:"storyHighlights"`
+	Summary         []string    `bson:"summary" json:"summary"`
+	StoryHighlights []string    `bson:"storyHighlights" json:"storyHighlights"`
 }
 
 type Photo struct {
@@ -81,7 +81,7 @@ func (a *Article) Save(session *mgo.Session) {
 			"subheadline":     a.Subheadline,
 			"section":         a.Section,
 			"subsection":      a.Subsection,
-			"source":          a.Source,
+			"domain":          a.Domain,
 			"sections":        a.Sections,
 			"updated_at":      a.Updated_at,
 			"timestamp":       a.Timestamp,
