@@ -9,6 +9,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
+	"github.com/andreyvit/mongobulk"
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
@@ -42,7 +43,8 @@ func GetArticles(session *mgo.Session, siteCodes []string, gannettSearchAPIKey s
 		return
 	}
 
-	bulk := session.DB("").C("ToScrape").Bulk()
+	coll := session.DB("").C("ToScrape")
+	bulk := mongobulk.New(coll, mongobulk.Config{})
 
 	// Iterate over all the articles, and determine whether or not we need to
 	// summarize the articles
@@ -59,7 +61,7 @@ func GetArticles(session *mgo.Session, siteCodes []string, gannettSearchAPIKey s
 		}
 	}
 
-	_, err := bulk.Run()
+	err := bulk.Finish()
 	if err != nil {
 		log.Errorf("Failed to store articles to be scraped: %v", err)
 	}
