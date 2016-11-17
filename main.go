@@ -60,8 +60,8 @@ func main() {
 					log.Fatalf("Failed to connect to '%s': %v", config.MongoURI, err)
 					os.Exit(ExitCodeErrDependencies)
 				}
+				defer session.Close()
 			}
-			defer closeSessionIfNotNil(session)
 
 			commands.GetArticles(session, config.SiteCodes, config.GannettAPIKey)
 		},
