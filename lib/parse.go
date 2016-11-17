@@ -40,7 +40,7 @@ func GetHost(inputUrl string) (string, error) {
 		return "", err
 	}
 
-	return u.Host, nil
+	return strings.Replace(u.Host, "www.", "", 1), nil
 }
 
 func IsBlacklisted(url string) bool {
