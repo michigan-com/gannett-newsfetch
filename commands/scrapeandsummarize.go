@@ -9,13 +9,12 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/michigan-com/brvty-api/brvtyclient"
 	"github.com/michigan-com/brvty-api/mongoqueue"
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
 
-func ScrapeAndSummarize(session *mgo.Session, client *brvtyclient.Client, queue *mongoqueue.Queue, brvtyTimeout time.Duration, loopInterval time.Duration, mongoUri string, summaryVEnv string, assetApiKey string) {
+func ScrapeAndSummarize(session *mgo.Session, queue *mongoqueue.Queue, loopInterval time.Duration, mongoUri string, assetApiKey string) {
 	var articleWait sync.WaitGroup
 	s := sem.New(100)
 

@@ -10,7 +10,6 @@ import (
 
 	"gopkg.in/mgo.v2"
 
-	"github.com/michigan-com/brvty-api/brvtyclient"
 	"github.com/michigan-com/brvty-api/mongoqueue"
 	"github.com/michigan-com/gannett-newsfetch/commands"
 )
@@ -69,10 +68,10 @@ func main() {
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 
-	client := brvtyclient.New(brvtyURL, brvtyAPIKey)
+	// client := brvtyclient.New(brvtyURL, brvtyAPIKey)
 	queue := mongoqueue.New(session.DB("").C("queue"), mongoqueue.Params{
 		Logger: queueLogger,
 	})
 
-	commands.ScrapeAndSummarize(session, client, queue, brvtyTimeout, interval, mongoURI, summaryVEnv, assetAPIKey)
+	commands.ScrapeAndSummarize(session, queue, interval, mongoURI, assetAPIKey)
 }
