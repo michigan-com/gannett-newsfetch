@@ -10,6 +10,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
+	"github.com/andreyvit/mongobulk"
 	"github.com/michigan-com/gannett-newsfetch/lib"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 )
@@ -25,9 +26,9 @@ type SummaryResponse struct {
 func ProcessSummaries(session *mgo.Session, toSummarize []interface{}, mongoUri string, summaryVEnv string) (*SummaryResponse, error) {
 	summResp := &SummaryResponse{}
 
-	bulk := session.DB("").C("ToSummarize").Bulk()
+	bulk := mongobulk.New(session.DB("").C("ToSummarize"), mongobulk.Config{})
 	bulk.Upsert(toSummarize...)
-	_, err := bulk.Run()
+	err := bulk.Finish()
 	if err != nil {
 		return summResp, err
 	}

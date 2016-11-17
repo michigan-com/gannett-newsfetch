@@ -10,6 +10,5 @@ func SetupMongoSession(uri string) (*mgo.Session, error) {
 		return nil, err
 	}
 
-	session.SetMode(mgo.Monotonic, true)
 	return session, nil
 }

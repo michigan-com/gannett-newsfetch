@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
 	newsfetch "github.com/michigan-com/gannett-newsfetch"

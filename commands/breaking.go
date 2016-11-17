@@ -10,6 +10,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/andreyvit/mongobulk"
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
 	m "github.com/michigan-com/gannett-newsfetch/model"
 	"github.com/michigan-com/newsfetch/lib"
@@ -90,9 +91,9 @@ func SaveBreakingArticles(breakingChannel chan *m.SearchArticle, session *mgo.Se
 	}
 
 	if len(toScrape) > 0 {
-		bulk := session.DB("").C("ToScrape").Bulk()
+		bulk := mongobulk.New(session.DB("").C("ToScrape"), mongobulk.Config{})
 		bulk.Upsert(toScrape...)
-		_, err := bulk.Run()
+		err := bulk.Finish()
 		if err != nil {
 			log.Errorf("Failed to store articles to be scraped: %v", err)
 		}

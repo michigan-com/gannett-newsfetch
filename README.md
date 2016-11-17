@@ -27,7 +27,6 @@ Fetch news articles from Gannett APIs and cache them in a Mongo store for easy s
 See [.env.sample](https://github.com/michigan-com/gannett-newsfetch/blob/master/.env.sample) for examples
 
 * `MONGO_URI` - DB uri for mongo store
-* `SITE_CODES` - a comma-separated list of Gannett Site codes
 * `GANNETT_SEARCH_API_KEY` - API key for Gannett Search API
 * `GANNETT_ASSET_API_KEY` - API key for Gannett Asset API
 * `SUMMARY_V_ENV` - absolute path to the virutal environment for summarization
@@ -42,36 +41,40 @@ Set `DEBUG` to a comma-separated list of these flags to enable additional behavi
 
 
 ## Commands
+
 ### Articles
+
 Fetch gannett news articles for the current day
-Env variables used: `MONGO_URI`, `SITE_CODES`, `GANNETT_SEARCH_API_KEY`
-```
-$ ./gannett-newsfetch articles
-```
+Env variables used: `MONGO_URI`, `GANNETT_SEARCH_API_KEY`
+    
+    newsfetch-articles
+
+To run indeterminately, add the `-l` flag, indicating the duration to sleep between every loop:
+
+    newsfetch-articles -l 5s
 
 ### Scrape And Summarize
-Scrape and summarize articles identified for scraping in `./gannett-newsfetch articles` command
-```
-$ ./gannett-newsfetch scrape-and-summarize
-```
 
-To run indeterminately, add the `-l` flag, indicating the number of seconds to sleep between every loop
-```
-$ ./gannett-newsfetch scrape-and-summarize -l 5
-```
+Scrape and summarize articles identified for scraping in `newsfetch-articles` command.
+
+    newsfetch-scrape
+
+To run indeterminately, add the `-l` flag, indicating the duration to sleep between every loop:
+
+    newsfetch-scrape -l 5s
+
 
 ### Breaking News
-Get any breaking news alerts from the Gannett API
-```
-$ ./gannett-newsfetch breaking-news
-```
 
-Similar to the scrape and summarize command, add the `-l` flag to loop
-```
-$ ./gannett-newsfetch breaking-news -l 5
-```
+Get any breaking news alerts from the Gannett API.
+
+    newsfetch-breaking-news
+
+Similar to the scrape and summarize command, add the `-l` flag to loop:
+
+    newsfetch-breaking-news -l 5s
+
 
 ## Testing
-```
-$ go test ./...
-```
+
+    go test ./...
