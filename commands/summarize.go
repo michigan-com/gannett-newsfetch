@@ -77,9 +77,9 @@ func shouldSummarizeArticle(article *m.SearchArticle, session *mgo.Session) bool
 		return true
 	} else if !lib.SameTime(datePublished, storedArticle.Created_at) {
 		return true
-	} else if len(storedArticle.Summary) == 0 {
-		return true
-	}
+	} //else if len(storedArticle.Summary) == 0 {
+	//return true
+	//}
 	return false
 
 }
