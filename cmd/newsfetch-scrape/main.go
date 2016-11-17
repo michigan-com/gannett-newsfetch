@@ -38,22 +38,22 @@ func main() {
 		os.Exit(64) // EX_USAGE
 	}
 
-	brvtyURL := os.Getenv("BRVTY_URL")
-	if brvtyURL == "" {
-		fmt.Fprintf(os.Stderr, "** missing BRVTY_URL env variable\n")
-		os.Exit(64) // EX_USAGE
-	}
-	brvtyAPIKey := os.Getenv("BRVTY_API_KEY")
-	if brvtyAPIKey == "" {
-		fmt.Fprintf(os.Stderr, "** missing BRVTY_API_KEY env variable\n")
-		os.Exit(64) // EX_USAGE
-	}
-
-	summaryVEnv := os.Getenv("SUMMARY_V_ENV")
-	if summaryVEnv == "" {
-		fmt.Fprintf(os.Stderr, "** missing SUMMARY_V_ENV env variable\n")
-		os.Exit(64) // EX_USAGE
-	}
+	// brvtyURL := os.Getenv("BRVTY_URL")
+	// if brvtyURL == "" {
+	// 	fmt.Fprintf(os.Stderr, "** missing BRVTY_URL env variable\n")
+	// 	os.Exit(64) // EX_USAGE
+	// }
+	// brvtyAPIKey := os.Getenv("BRVTY_API_KEY")
+	// if brvtyAPIKey == "" {
+	// 	fmt.Fprintf(os.Stderr, "** missing BRVTY_API_KEY env variable\n")
+	// 	os.Exit(64) // EX_USAGE
+	// }
+	//
+	// summaryVEnv := os.Getenv("SUMMARY_V_ENV")
+	// if summaryVEnv == "" {
+	// 	fmt.Fprintf(os.Stderr, "** missing SUMMARY_V_ENV env variable\n")
+	// 	os.Exit(64) // EX_USAGE
+	// }
 
 	assetAPIKey := os.Getenv("GANNETT_ASSET_API_KEY")
 	if assetAPIKey == "" {
