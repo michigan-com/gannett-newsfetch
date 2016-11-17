@@ -1,13 +1,12 @@
 package commands
 
 import (
+	"log"
 	"sync"
 	"time"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
-	log "github.com/Sirupsen/logrus"
 
 	"github.com/andreyvit/mongobulk"
 	api "github.com/michigan-com/gannett-newsfetch/gannettApi"
@@ -22,7 +21,7 @@ func GetArticles(session *mgo.Session, siteCodes []string, gannettSearchAPIKey s
 	articleChannel := make(chan *m.SearchArticle, len(siteCodes)*100)
 
 	// Fetch each markets' articles in parallel
-	log.Info("Fetching articles for all sites ...")
+	log.Printf("Fetching articles for all sites ...")
 	for _, code := range siteCodes {
 		articleWait.Add(1)
 		go func(code string) {
@@ -36,21 +35,15 @@ func GetArticles(session *mgo.Session, siteCodes []string, gannettSearchAPIKey s
 	}
 	articleWait.Wait()
 	close(articleChannel)
-	log.Info("...Done fetching articles")
-
-	if session == nil {
-		log.Print("No Mongo Uri specified, no articles will be saved")
-		return
-	}
+	log.Printf("...Done fetching articles")
 
 	coll := session.DB("").C("ToScrape")
 	bulk := mongobulk.New(coll, mongobulk.Config{})
 
 	// Iterate over all the articles, and determine whether or not we need to
 	// summarize the articles
-	log.Info("Determining which articles need to be scraped...")
+	log.Printf("Determining which articles need to be scraped...")
 	for article := range articleChannel {
-
 		if shouldSummarizeArticle(article, session) {
 			totalArticles += 1
 
@@ -63,14 +56,8 @@ func GetArticles(session *mgo.Session, siteCodes []string, gannettSearchAPIKey s
 
 	err := bulk.Finish()
 	if err != nil {
-		log.Errorf("Failed to store articles to be scraped: %v", err)
+		log.Printf("ERROR: Failed to store articles to be scraped: %v", err)
 	}
-	log.Info("...Done")
 
-	log.Infof(`
-
-	Article processing done (%v)
-
-		Total Articles Found:	%d
-	`, time.Now().Sub(startTime), totalArticles)
+	log.Printf("Article processing done (%v). Total Articles Found: %d.", time.Now().Sub(startTime), totalArticles)
 }
