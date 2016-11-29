@@ -34,23 +34,24 @@ type Article struct {
 	// GannettArticle `bson:",inline" json:"article"`
 
 	// deprecated, do not use
-	ArticleId       int         `bson:"article_id" json:"article_id"`
-	Headline        string      `bson:"headline" json:"headline`
-	Subheadline     string      `bson:"subheadline" json:"subheadline"`
-	Section         string      `bson:"section" json:"section"`
-	Subsection      string      `bson:"subsection" json:"subsection"`
-	Sections        []string    `bson:"sections" json"sections"`
-	Domain          string      `bson:"domain" json:"domain"`
-	Created_at      time.Time   `bson:"created_at" json:"created_at"`
-	Updated_at      time.Time   `bson:"updated_at" json:"updated_at"`
-	Timestamp       time.Time   `bson:"timestamp" json:"timestamp"`
-	Url             string      `bson:"url" json:"url"`
-	ShortUrl        string      `bson:"shortUrl" json:"shortUrl"`
-	Photo           *Photo      `bson:"photo" json:"photo"`
-	Video           *AssetVideo `bson:"video" json:"video"`
-	Body            string      `bson:"body" json:"body"`
-	Summary         []string    `bson:"summary" json:"summary"`
-	StoryHighlights []string    `bson:"storyHighlights" json:"storyHighlights"`
+	ArticleId       int                 `bson:"article_id" json:"article_id"`
+	Headline        string              `bson:"headline" json:"headline`
+	Subheadline     string              `bson:"subheadline" json:"subheadline"`
+	Section         string              `bson:"section" json:"section"`
+	Subsection      string              `bson:"subsection" json:"subsection"`
+	Sections        []string            `bson:"sections" json"sections"`
+	Domain          string              `bson:"domain" json:"domain"`
+	Created_at      time.Time           `bson:"created_at" json:"created_at"`
+	Updated_at      time.Time           `bson:"updated_at" json:"updated_at"`
+	Timestamp       time.Time           `bson:"timestamp" json:"timestamp"`
+	Url             string              `bson:"url" json:"url"`
+	ShortUrl        string              `bson:"shortUrl" json:"shortUrl"`
+	Photo           *Photo              `bson:"photo" json:"photo"`
+	Video           *AssetVideo         `bson:"video" json:"video"`
+	Body            string              `bson:"body" json:"body"`
+	Summary         []string            `bson:"summary" json:"summary"`
+	StoryHighlights []string            `bson:"storyHighlights" json:"storyHighlights"`
+	VideoPlaylist   *AssetVideoPlaylist `bson:"videoPlaylist" json:"videoPlaylist"`
 }
 
 type Photo struct {
@@ -91,6 +92,7 @@ func (a *Article) Save(session *mgo.Session) {
 			"video":           a.Video,
 			"body":            a.Body,
 			"storyHighlights": a.StoryHighlights,
+			"videoPlaylist":   a.VideoPlaylist,
 		},
 		"$setOnInsert": bson.M{
 			"inserted_at": time.Now(),

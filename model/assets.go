@@ -11,8 +11,9 @@ type AssetArticleContent struct {
 }
 
 type ArticleAssets struct {
-	Photo *AssetPhoto
-	Video *AssetVideo
+	Photo         *AssetPhoto
+	Video         *AssetVideo
+	VideoPlaylist *AssetVideoPlaylist
 }
 
 /**
@@ -47,6 +48,10 @@ type AssetVideo struct {
 	VideoStill string           `json:"videoStill"`
 	Length     string           `json:"length"`
 	Renditions []VideoRendition `json:"renditions"`
+}
+
+type AssetVideoPlaylist struct {
+	AssetId int `json:"id"`
 }
 
 type Ssts struct {

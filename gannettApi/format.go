@@ -34,6 +34,7 @@ func FormatAssetArticleForSaving(assetArticleContent *m.AssetArticleContent) *m.
 	mongoArticle.Body = parse.ParseArticleBodyHtml(article.FullText)
 	mongoArticle.StoryHighlights = article.StoryHighlights
 	mongoArticle.Video = video
+	mongoArticle.VideoPlaylist = assetArticleContent.Assets.VideoPlaylist
 
 	return mongoArticle
 }

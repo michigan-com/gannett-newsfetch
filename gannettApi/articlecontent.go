@@ -53,6 +53,10 @@ func GetArticleAssets(assets []*m.GannettApiAsset, assetApiKey string) *m.Articl
 				if err == nil {
 					articleAssets.Video = assetVideo
 				}
+			} else if asset.Type == "video-playlist" {
+				articleAssets.VideoPlaylist = &m.AssetVideoPlaylist{
+					AssetId: asset.Id,
+				}
 			}
 		}(asset)
 	}
