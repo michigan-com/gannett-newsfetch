@@ -1,0 +1,118 @@
+{
+	"ImportPath": "github.com/michigan-com/gannett-newsfetch",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v75",
+	"Deps": [
+		{
+			"ImportPath": "github.com/PuerkitoBio/goquery",
+			"Comment": "v1.0.1-2-g152b1a2",
+			"Rev": "152b1a2c8f5d0340f658bb656032a39b94e52958"
+		},
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.11.0-25-g881bee4",
+			"Rev": "881bee4e20a5d11a6a88a5667c6f292072ac1963"
+		},
+		{
+			"ImportPath": "github.com/andreyvit/debugflag",
+			"Rev": "ad5b5b8d531dadaaa77c06b44abc255e23f29d29"
+		},
+		{
+			"ImportPath": "github.com/andreyvit/mongobulk",
+			"Rev": "bb7046dd0785f0df0d241ab85a4526bd65718d57"
+		},
+		{
+			"ImportPath": "github.com/andreyvit/sem",
+			"Rev": "51d9c5c4f5082d89e3ac9d6b1bc187c0cc86fcf5"
+		},
+		{
+			"ImportPath": "github.com/andybalholm/cascadia",
+			"Rev": "196d48ce4ae8cf1c8f87088d2884eca214240887"
+		},
+		{
+			"ImportPath": "github.com/fluxio/iohelpers/line",
+			"Rev": "3a4dd67a94d215a3fe44f84c98b34472627fd3a3"
+		},
+		{
+			"ImportPath": "github.com/fluxio/multierror",
+			"Rev": "9c68d39025e5c354adb4da3d75f3c8ee6f8c6a02"
+		},
+		{
+			"ImportPath": "github.com/kelseyhightower/envconfig",
+			"Comment": "v1.0.0-26-g12c18e8",
+			"Rev": "12c18e8343f6eb5fc3a9d5c8dc353e42e6bb40b9"
+		},
+		{
+			"ImportPath": "github.com/michigan-com/brvty-api/brvtyclient",
+			"Rev": "6d6385135407718b1102dd299d387bec1d591b9b"
+		},
+		{
+			"ImportPath": "github.com/michigan-com/brvty-api/brvtycore",
+			"Rev": "6d6385135407718b1102dd299d387bec1d591b9b"
+		},
+		{
+			"ImportPath": "github.com/michigan-com/brvty-api/canonicalurl",
+			"Rev": "6d6385135407718b1102dd299d387bec1d591b9b"
+		},
+		{
+			"ImportPath": "github.com/michigan-com/brvty-api/gannett",
+			"Rev": "6d6385135407718b1102dd299d387bec1d591b9b"
+		},
+		{
+			"ImportPath": "github.com/michigan-com/brvty-api/mongoqueue",
+			"Rev": "6d6385135407718b1102dd299d387bec1d591b9b"
+		},
+		{
+			"ImportPath": "github.com/michigan-com/newsfetch/extraction/split",
+			"Comment": "0.2.11-60-g8f4005c",
+			"Rev": "8f4005cdfc7a6cd9416b04d5a029183a38c4bc97"
+		},
+		{
+			"ImportPath": "github.com/michigan-com/newsfetch/lib",
+			"Comment": "0.2.11-60-g8f4005c",
+			"Rev": "8f4005cdfc7a6cd9416b04d5a029183a38c4bc97"
+		},
+		{
+			"ImportPath": "github.com/pkg/errors",
+			"Comment": "v0.8.0-2-g248dadf",
+			"Rev": "248dadf4e9068a0b3e79f02ed0a610d935de5302"
+		},
+		{
+			"ImportPath": "golang.org/x/net/html",
+			"Rev": "cfae461cedfdcab6e261a26eb77db53695623303"
+		},
+		{
+			"ImportPath": "golang.org/x/net/html/atom",
+			"Rev": "cfae461cedfdcab6e261a26eb77db53695623303"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "d75a52659825e75fff6158388dddc6a5b04f9ba5"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/bson",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/json",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/sasl",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/scram",
+			"Comment": "r2016.08.01-5-g3f83fa5",
+			"Rev": "3f83fa5005286a7fe593b055f0d7771a7dce4655"
+		}
+	]
+}
